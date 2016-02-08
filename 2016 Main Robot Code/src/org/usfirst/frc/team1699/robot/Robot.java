@@ -2,7 +2,7 @@
 package org.usfirst.frc.team1699.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -18,6 +18,10 @@ public class Robot extends IterativeRobot {
     final String customAuto = "My Auto";
     String autoSelected;
     SendableChooser chooser;
+    
+    Joystick extreme;
+    Joystick logitech;
+    Joystick xbox;
 	
     /**
      * This function is run when the robot is first started up and should be
@@ -28,6 +32,10 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
+        
+        extreme = new Joystick(1);
+        logitech = new Joystick(2);
+        xbox = new Joystick(3);
     }
     
 	/**
@@ -64,8 +72,76 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        
-    }
+//    	Joystick 1 (extreme 3d):
+//    	    x-axis: drive right side
+//    	Joystick 2 (logitech):
+//    	    x-axis: drive left side
+//    	    button 3: pickup
+//    	    button 4/5: up/down pickup mechanism 
+//    	Driver 2:
+//    	Joystick 1 (xbox):
+//    	    axis 3: shooter up/down
+//    	    button 1-4: shooter speeds
+//    	    button 5/6: camera switch
+    	
+    	if(extreme.getX() == 1){
+    		//right forward
+    	}else if(extreme.getX() == -1){
+    		//right backward
+    	}else{
+    		//set all to 0
+    	}
+    	
+    	if(logitech.getX() == 1){
+    		//left forward
+    	}else if(logitech.getX() == -1){
+    		//right backward
+    	}else{
+    		//set all to 0
+    	}
+    	
+    	if(logitech.getRawButton(3)){
+    		//pickup
+    	}else{
+    		//set all 0
+    	}
+    	
+    	if(logitech.getRawButton(4)){
+    		//pickup up
+    	}else if(logitech.getRawButton(5)){
+    		//pickup down
+    	}else{
+    		//set all 0
+    	}
+    	
+    	if(xbox.getZ() == 1){
+    		//shooter up
+    	}else if(xbox.getZ() == -1){
+    		//shooter down
+    	}else{
+    		//set all 0
+    	}
+    	
+    	if(xbox.getRawButton(1)){
+    		//shooter speed 1
+    	}else if(xbox.getRawButton(2)){
+    		//shooter speed 2
+    	}else if(xbox.getRawButton(3)){
+    		//shooter speed 3
+    	}else if(xbox.getRawButton(4)){
+    		//shooter speed 4
+    	}else{
+    		//set all 0
+    	}
+    	
+    	if(xbox.getRawButton(5)){
+    		//camera 1
+    	}else if(xbox.getRawButton(6)){
+    		//camera 2
+    	}else{
+    		//camera 1
+    	}
+    }	
     
     /**
      * This function is called periodically during test mode
