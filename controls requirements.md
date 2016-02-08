@@ -5,12 +5,14 @@ Driver 1:
 	Joystick 1 (extreme 3d):
 	
 		x-axis: drive right side
+		trigger: gear up
 		
 	Joystick 2 (attack 3):
 	
 		x-axis: drive left side
 		button 3: pickup
 		button 4/5: up/down pickup mechanism 
+		trigger: gear down
 		
 Driver 2:
 	
