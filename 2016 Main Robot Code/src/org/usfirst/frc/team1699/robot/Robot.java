@@ -138,8 +138,12 @@ public class Robot extends IterativeRobot {
     		//camera 1
     	}else if(xbox.getRawButton(6)){
     		//camera 2
-    	}else{
-    		//camera 1
+    	}
+    	
+    	if(extreme.getTrigger()){
+    		//gear up
+    	}else if(logitech.getTrigger()){
+    		//gear down
     	}
     }	
     
