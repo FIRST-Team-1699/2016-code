@@ -4,4 +4,6 @@ We are currently transitioning from LabView to Java.
 
 Look in other repositories for archive code.
 
-This repository currently contains the basic code for running our 2016 robot
+This repository currently contains the basic code for running our 2016 robot.
+
+Please see control requirements.md for information about what our robot will do this year.
