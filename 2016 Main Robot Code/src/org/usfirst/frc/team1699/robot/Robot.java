@@ -1,8 +1,10 @@
 
 package org.usfirst.frc.team1699.robot;
 
+import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -19,9 +21,30 @@ public class Robot extends IterativeRobot {
     String autoSelected;
     SendableChooser chooser;
     
+    //Joysticks
     Joystick extreme;
     Joystick logitech;
     Joystick xbox;
+    
+    //Motor Control
+    //Drive Motors
+    CANTalon rightDrive1;
+    CANTalon rightDrive2;
+    CANTalon leftDrive1;
+    CANTalon leftDrive2;
+    
+    //Shooter Motors
+    VictorSP leftShoot;
+    VictorSP rightShoot;
+    VictorSP bottomShoot;
+    VictorSP topShoot;
+    
+    //Shooter Adjustment
+    VictorSP shootAdjust;
+    
+    //Ball pickup
+    VictorSP leftPickup;
+    VictorSP rightPickup;
 	
     /**
      * This function is run when the robot is first started up and should be
@@ -39,7 +62,24 @@ public class Robot extends IterativeRobot {
         xbox = new Joystick(3);
         
         //Motor Control
+        //Drive Motors
+        rightDrive1 = new CANTalon(10);
+        rightDrive2 = new CANTalon(11);
+        leftDrive1 = new CANTalon(12);
+        leftDrive2 = new CANTalon(13);
         
+        //Shooter Motors
+        leftShoot = new VictorSP(0);
+        rightShoot = new VictorSP(1);
+        bottomShoot = new VictorSP(2);
+        topShoot = new VictorSP(3);
+        
+        //Shooter Adjustment
+        shootAdjust = new VictorSP(4);
+        
+        //Ball pickup
+        leftPickup = new VictorSP(5);
+        rightPickup = new VictorSP(6);
     }
     
 	/**
