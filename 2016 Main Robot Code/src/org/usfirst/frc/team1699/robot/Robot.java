@@ -33,9 +33,13 @@ public class Robot extends IterativeRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
         
+        //Human Controls
         extreme = new Joystick(1);
         logitech = new Joystick(2);
         xbox = new Joystick(3);
+        
+        //Motor Control
+        
     }
     
 	/**
