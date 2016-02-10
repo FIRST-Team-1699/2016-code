@@ -94,7 +94,6 @@ public class Robot extends IterativeRobot {
 //    	Joystick 2 (logitech):
 //    	    x-axis: drive left side
 //    	    button 3: pickup
-//    	    button 4/5: up/down pickup mechanism 
 //    	Driver 2:
 //    	Joystick 1 (xbox):
 //    	    axis 3: shooter up/down
@@ -103,52 +102,83 @@ public class Robot extends IterativeRobot {
     	
     	if(extreme.getX() == 1){
     		//right forward
+    		rightDrive1.set(1);
+    		rightDrive2.set(1);
     	}else if(extreme.getX() == -1){
     		//right backward
+    		rightDrive1.set(-1);
+    		rightDrive2.set(-1);
     	}else{
     		//set all to 0
+    		rightDrive1.set(0);
+    		rightDrive2.set(0);
     	}
     	
     	if(logitech.getX() == 1){
     		//left forward
+    		leftDrive1.set(1);
+    		leftDrive2.set(1);
     	}else if(logitech.getX() == -1){
     		//right backward
+    		leftDrive1.set(-1);
+    		leftDrive2.set(-1);
     	}else{
     		//set all to 0
+    		leftDrive1.set(0);
+    		leftDrive2.set(0);
     	}
     	
     	if(logitech.getRawButton(3)){
     		//pickup
+    		leftPickup.set(.8);
+    		rightPickup.set(.8);
     	}else{
     		//set all 0
-    	}
-    	
-    	if(logitech.getRawButton(4)){
-    		//pickup up
-    	}else if(logitech.getRawButton(5)){
-    		//pickup down
-    	}else{
-    		//set all 0
+    		leftPickup.set(0);
+    		rightPickup.set(0);
     	}
     	
     	if(xbox.getZ() == 1){
     		//shooter up
+    		shootAdjust.set(.4);
     	}else if(xbox.getZ() == -1){
     		//shooter down
+    		shootAdjust.set(-.4);
     	}else{
     		//set all 0
+    		shootAdjust.set(0);
     	}
     	
     	if(xbox.getRawButton(1)){
     		//shooter speed 1
+    		leftShoot.set(.7);
+    		rightShoot.set(.7);
+    		topShoot.set(.7);
+    		bottomShoot.set(.7);
     	}else if(xbox.getRawButton(2)){
     		//shooter speed 2
+    		leftShoot.set(.8);
+    		rightShoot.set(.8);
+    		topShoot.set(.8);
+    		bottomShoot.set(.8);
     	}else if(xbox.getRawButton(3)){
     		//shooter speed 3
+    		leftShoot.set(.9);
+    		rightShoot.set(.9);
+    		topShoot.set(.9);
+    		bottomShoot.set(.9);
     	}else if(xbox.getRawButton(4)){
     		//shooter speed 4
+    		leftShoot.set(1);
+    		rightShoot.set(1);
+    		topShoot.set(1);
+    		bottomShoot.set(1);
     	}else{
     		//set all 0
+    		leftShoot.set(0);
+    		rightShoot.set(0);
+    		topShoot.set(0);
+    		bottomShoot.set(0); 
     	}
     	
     	if(xbox.getRawButton(5)){
@@ -162,7 +192,7 @@ public class Robot extends IterativeRobot {
     	}else if(logitech.getTrigger()){
     		//gear down
     	}
-    }	
+    }
     
     public void testPeriodic() {
     
