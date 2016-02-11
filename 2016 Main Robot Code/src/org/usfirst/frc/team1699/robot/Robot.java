@@ -38,6 +38,10 @@ public class Robot extends IterativeRobot {
     //Ball pickup
     VictorSP leftPickup;
     VictorSP rightPickup;
+
+    // Open config files
+    iniReader auto1Ini = new iniReader("1699-autonomous1.ini");
+    iniReader teleopIni = new iniReader("1699-preferences.ini");
     
     public void robotInit() {
         chooser = new SendableChooser();
