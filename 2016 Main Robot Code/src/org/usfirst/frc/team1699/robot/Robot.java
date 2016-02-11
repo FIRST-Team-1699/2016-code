@@ -1,10 +1,10 @@
-
 package org.usfirst.frc.team1699.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -25,6 +25,8 @@ public class Robot extends IterativeRobot {
     CANTalon rightDrive2;
     CANTalon leftDrive1;
     CANTalon leftDrive2;
+    // Robot Drive for easier motor control
+    RobotDrive rDrive = new RobotDrive(rightDrive1, rightDrive2, leftDrive1, leftDrive2);
     
     //Shooter Motors
     VictorSP leftShoot;
@@ -40,7 +42,6 @@ public class Robot extends IterativeRobot {
     VictorSP rightPickup;
 
     // Open config files
-    iniReader auto1Ini = new iniReader("1699-autonomous1.ini");
     iniReader teleopIni = new iniReader("1699-preferences.ini");
     
     public void robotInit() {
@@ -104,6 +105,7 @@ public class Robot extends IterativeRobot {
 //    	    button 1-4: shooter speeds
 //    	    button 5/6: camera switch
     	
+	/* All this code needs a rewrite
     	//Control for right motors
     	if(extreme.getX() == 1){
     		//right forward
@@ -133,10 +135,19 @@ public class Robot extends IterativeRobot {
     		leftDrive1.set(0);
     		leftDrive2.set(0);
     	}
+    	*/
+    	
+    	// gearing should go near robotDrive call
+    	xSpeed1 = extreme.getX() * gearRatio;
+    	xSpeed2 = logitech.getX() * gearRatio;
+    	
+    	rDrive.tankDrive(extreme.getX(), logitech.getX()); // check call and logic, did on the fly 
     	
     	if(logitech.getRawButton(3)){
     		//pickup
-    		leftPickup.set(.8);
+   		// all motors (except for drive) (or anything that we will never change) should be retived from the ini
+   		// call to get value example below
+    		leftPickup.set(teleopIni.getValue("leftPickupSpeed");
     		rightPickup.set(.8);
     	}else{
     		//set all 0
