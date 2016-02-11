@@ -22,4 +22,12 @@ Driver 2:
 		button 1-4: shooter speeds
 		button 5/6: camera switch
 		
-Vision Processing
+Vision Processing:
+
+        Get image from coprocessor
+
+        Process image to appempt to find retroflective tape
+
+        Send information and image to roboRio
+
+        Send image to Driver Station
