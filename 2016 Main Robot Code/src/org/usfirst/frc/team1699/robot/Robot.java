@@ -104,6 +104,7 @@ public class Robot extends IterativeRobot {
 //    	    button 1-4: shooter speeds
 //    	    button 5/6: camera switch
     	
+    	//Control for right motors
     	if(extreme.getX() == 1){
     		//right forward
     		rightDrive1.set(1);
@@ -118,6 +119,7 @@ public class Robot extends IterativeRobot {
     		rightDrive2.set(0);
     	}
     	
+    	//Control for left drive
     	if(logitech.getX() == 1){
     		//left forward
     		leftDrive1.set(1);
@@ -142,6 +144,7 @@ public class Robot extends IterativeRobot {
     		rightPickup.set(0);
     	}
     	
+    	//Move shooter
     	if(xbox.getZ() == 1){
     		//shooter up
     		shootAdjust.set(.4);
@@ -153,6 +156,7 @@ public class Robot extends IterativeRobot {
     		shootAdjust.set(0);
     	}
     	
+    	//Shoot with different speeds
     	if(xbox.getRawButton(1)){
     		//shooter speed 1
     		leftShoot.set(.7);
@@ -185,12 +189,14 @@ public class Robot extends IterativeRobot {
     		bottomShoot.set(0); 
     	}
     	
+    	//Camera control
     	if(xbox.getRawButton(5)){
     		//camera 1
     	}else if(xbox.getRawButton(6)){
     		//camera 2
     	}
     	
+    	//Gearing control
     	if(extreme.getTrigger()){
     		//gear up
     	}else if(logitech.getTrigger()){
