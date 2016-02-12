@@ -2,7 +2,6 @@ package org.usfirst.frc.team1699.robot;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 
 public class Vision {
 
@@ -16,7 +15,7 @@ public class Vision {
 		this.image = image;
 	}
 	
-	public Boolean[][] lookColor(int red, int green, int blue){
+	public Boolean[][] makeColorArray(int red, int green, int blue){
 		//Sets array size
 		imgArr = new Boolean[image.getHeight()][image.getWidth()];
 		
