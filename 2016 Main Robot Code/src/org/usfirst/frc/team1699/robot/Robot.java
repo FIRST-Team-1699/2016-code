@@ -25,6 +25,7 @@ public class Robot extends IterativeRobot {
     CANTalon rightDrive2;
     CANTalon leftDrive1;
     CANTalon leftDrive2;
+    
     // Robot Drive for easier motor control
     RobotDrive rDrive = new RobotDrive(rightDrive1, rightDrive2, leftDrive1, leftDrive2);
     
@@ -44,7 +45,7 @@ public class Robot extends IterativeRobot {
     // Open config files
     iniReader teleopIni = new iniReader("1699-preferences.ini");
     
-    //Other
+    //Other Variables
     double xSpeed1;
     double xSpeed2;    
     
@@ -151,8 +152,8 @@ public class Robot extends IterativeRobot {
     	
     	if(logitech.getRawButton(3)){
     		//pickup
-   		// all motors (except for drive) (or anything that we will never change) should be retived from the ini
-   		// call to get value example below
+    		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
+    		// call to get value example below
     		leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.8);
     	}else{
