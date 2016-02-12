@@ -15,8 +15,8 @@ public class Robot extends IterativeRobot {
     SendableChooser chooser;
     
     //Joysticks
-    Joystick extreme;
-    Joystick logitech;
+    Joystick extreme3d;
+    Joystick attack3;
     Joystick xbox;
     
     //Motor Control
@@ -26,7 +26,7 @@ public class Robot extends IterativeRobot {
     CANTalon leftDrive1;
     CANTalon leftDrive2;
     // Robot Drive for easier motor control
-    RobotDrive rDrive = new RobotDrive(rightDrive1, rightDrive2, leftDrive1, leftDrive2);
+    RobotDrive rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);
     
     //Shooter Motors
     VictorSP leftShoot;
@@ -40,9 +40,26 @@ public class Robot extends IterativeRobot {
     //Ball pickup
     VictorSP leftPickup;
     VictorSP rightPickup;
-
+    
     // Open config files
-    iniReader teleopIni = new iniReader("1699-preferences.ini");
+    iniReader teleopIni = new iniReader("1699-config.ini");
+    
+    // moar things
+    
+    // Joystick speed after "gearing"
+    double xSpeed1;
+    double xSpeed2;
+    
+    // Current "gear"
+    double gearRatio;
+    
+    // Read "gear" rations from ini
+    double gear1 = teleopIni.getValue("gear1");
+    double gear2 = teleopIni.getValue("gear2");
+    double gear3 = teleopIni.getValue("gear3");
+    
+    // Current "gear" number (current options: 1-3) (initializes at 2)
+    int cGear = 2; 
     
     public void robotInit() {
         chooser = new SendableChooser();
@@ -51,8 +68,8 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putData("Auto choices", chooser);
         
         //Human Controls
-        extreme = new Joystick(1);
-        logitech = new Joystick(2);
+        extreme3d = new Joystick(1);
+        attack3 = new Joystick(2);
         xbox = new Joystick(3);
         
         //Motor Control
@@ -94,9 +111,9 @@ public class Robot extends IterativeRobot {
     }
 
     public void teleopPeriodic() {
-//    	Joystick 1 (extreme 3d):
+//    	Joystick 1 (extreme3d):
 //    	    x-axis: drive right side
-//    	Joystick 2 (logitech):
+//    	Joystick 2 (attack3):
 //    	    x-axis: drive left side
 //    	    button 3: pickup
 //    	Driver 2:
@@ -107,11 +124,11 @@ public class Robot extends IterativeRobot {
     	
 	/* All this code needs a rewrite
     	//Control for right motors
-    	if(extreme.getX() == 1){
+    	if(extreme3d3d3d3d3d.getX() == 1){
     		//right forward
     		rightDrive1.set(1);
     		rightDrive2.set(1);
-    	}else if(extreme.getX() == -1){
+    	}else if(extreme3d3d3d3d3d.getX() == -1){
     		//right backward
     		rightDrive1.set(-1);
     		rightDrive2.set(-1);
@@ -122,11 +139,11 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Control for left drive
-    	if(logitech.getX() == 1){
+    	if(attack3.getX() == 1){
     		//left forward
     		leftDrive1.set(1);
     		leftDrive2.set(1);
-    	}else if(logitech.getX() == -1){
+    	}else if(attack3.getX() == -1){
     		//right backward
     		leftDrive1.set(-1);
     		leftDrive2.set(-1);
@@ -138,16 +155,16 @@ public class Robot extends IterativeRobot {
     	*/
     	
     	// gearing should go near robotDrive call
-    	xSpeed1 = extreme.getX() * gearRatio;
-    	xSpeed2 = logitech.getX() * gearRatio;
+    	xSpeed1 = extreme3d.getX() * gearRatio;
+    	xSpeed2 = attack3.getX() * gearRatio;
     	
-    	rDrive.tankDrive(extreme.getX(), logitech.getX()); // check call and logic, did on the fly 
+    	rDrive.tankDrive(extreme3d.getX(), attack3.getX()); // check call and logic, did on the fly 
     	
-    	if(logitech.getRawButton(3)){
+    	if(attack3.getRawButton(3)){
     		//pickup
    		// all motors (except for drive) (or anything that we will never change) should be retived from the ini
    		// call to get value example below
-    		leftPickup.set(teleopIni.getValue("leftPickupSpeed");
+    		leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.8);
     	}else{
     		//set all 0
@@ -208,9 +225,17 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Gearing control
-    	if(extreme.getTrigger()){
+    	if(extreme3d.getTrigger())
+    	{
     		//gear up
-    	}else if(logitech.getTrigger()){
+    		if (cGear == 1 || cGear == 2)
+    		{
+    			cGear += 1;
+    			
+    		}
+    	}
+    	else if(attack3.getTrigger())
+    	{
     		//gear down
     	}
     }
