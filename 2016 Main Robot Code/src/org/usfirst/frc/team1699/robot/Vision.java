@@ -10,6 +10,7 @@ public class Vision {
 	
 	//Array for image
 	private Boolean[][] imgArr;
+	private double[][] colorArr;
 	
 	public Vision(BufferedImage image){
 		this.image = image;
@@ -41,6 +42,22 @@ public class Vision {
 		 return imgArr;
 	}
 	
+	public double[][] colorString(){
+		//Sets array size
+		colorArr = new double[image.getHeight()][image.getWidth()];
+		
+		//Runs through image pixel by pixel
+		 for (int y = 0; y < image.getHeight(); y++) {
+			 for (int x = 0; x < image.getWidth(); x++) {
+				 int c = image.getRGB(x, y);
+			   	 Color color = new Color(c);
+			   	 	
+				 colorArr[y][x] = color.getRGB();
+			 }
+		 }
+		
+		return colorArr;
+	}
 	
 	//Getters and setters
 	public BufferedImage getImage() {
