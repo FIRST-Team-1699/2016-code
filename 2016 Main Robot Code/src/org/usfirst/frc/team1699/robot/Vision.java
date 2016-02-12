@@ -71,4 +71,8 @@ public class Vision {
 	public Boolean[][] getImgArr() {
 		return imgArr;
 	}
+	
+	public double[][] colorArr(){
+		return colorArr;
+	}
 }
