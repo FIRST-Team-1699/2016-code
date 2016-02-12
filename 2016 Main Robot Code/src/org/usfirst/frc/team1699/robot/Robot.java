@@ -62,11 +62,6 @@ public class Robot extends IterativeRobot {
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
     
-    //Other Variables
-    double xSpeed1;
-    double xSpeed2;    
-    
-    double gearRatio;
     
     public void robotInit() {  	
         chooser = new SendableChooser();
