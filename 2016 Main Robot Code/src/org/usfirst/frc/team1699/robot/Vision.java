@@ -6,22 +6,6 @@ import java.util.Arrays;
 
 public class Vision {
 
-	public BufferedImage getImage() {
-		return image;
-	}
-
-	public void setImage(BufferedImage image) {
-		this.image = image;
-	}
-
-	public Boolean[][] getImgArr() {
-		return imgArr;
-	}
-
-	public void setImgArr(Boolean[][] imgArr) {
-		this.imgArr = imgArr;
-	}
-
 	private BufferedImage image;
 	private Boolean[][] imgArr;
 	
@@ -47,5 +31,17 @@ public class Vision {
 		 }
 		 
 		 return imgArr;
+	}
+	
+	public BufferedImage getImage() {
+		return image;
+	}
+
+	public void setImage(BufferedImage image) {
+		this.image = image;
+	}
+
+	public Boolean[][] getImgArr() {
+		return imgArr;
 	}
 }
