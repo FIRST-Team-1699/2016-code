@@ -2,9 +2,26 @@ package org.usfirst.frc.team1699.robot;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 public class Vision {
-	
+
+	public BufferedImage getImage() {
+		return image;
+	}
+
+	public void setImage(BufferedImage image) {
+		this.image = image;
+	}
+
+	public Boolean[][] getImgArr() {
+		return imgArr;
+	}
+
+	public void setImgArr(Boolean[][] imgArr) {
+		this.imgArr = imgArr;
+	}
+
 	private BufferedImage image;
 	private Boolean[][] imgArr;
 	
