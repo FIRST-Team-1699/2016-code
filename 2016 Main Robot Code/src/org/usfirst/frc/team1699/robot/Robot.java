@@ -25,6 +25,7 @@ public class Robot extends IterativeRobot {
     CANTalon rightDrive2;
     CANTalon leftDrive1;
     CANTalon leftDrive2;
+    
     // Robot Drive for easier motor control
     RobotDrive rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);
     
@@ -61,7 +62,13 @@ public class Robot extends IterativeRobot {
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
     
-    public void robotInit() {
+    //Other Variables
+    double xSpeed1;
+    double xSpeed2;    
+    
+    double gearRatio;
+    
+    public void robotInit() {  	
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
@@ -162,8 +169,8 @@ public class Robot extends IterativeRobot {
     	
     	if(attack3.getRawButton(3)){
     		//pickup
-   		// all motors (except for drive) (or anything that we will never change) should be retived from the ini
-   		// call to get value example below
+    		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
+    		// call to get value example below
     		leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.8);
     	}else{
