@@ -44,7 +44,13 @@ public class Robot extends IterativeRobot {
     // Open config files
     iniReader teleopIni = new iniReader("1699-preferences.ini");
     
-    public void robotInit() {
+    //Other
+    double xSpeed1;
+    double xSpeed2;    
+    
+    double gearRatio;
+    
+    public void robotInit() {  	
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
@@ -147,7 +153,7 @@ public class Robot extends IterativeRobot {
     		//pickup
    		// all motors (except for drive) (or anything that we will never change) should be retived from the ini
    		// call to get value example below
-    		leftPickup.set(teleopIni.getValue("leftPickupSpeed");
+    		leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.8);
     	}else{
     		//set all 0
