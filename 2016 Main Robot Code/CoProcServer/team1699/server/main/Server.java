@@ -9,10 +9,11 @@ import java.net.Socket;
 
 public class Server {
 
+	//Server Socket Variables
 	ServerSocket sSocket;
 	Socket socket;
-	PrintWriter output;
 	
+	//Server port will be 5801 and path may be removed
 	public Server(int port, String path){
 		try {
 			sSocket = new ServerSocket(port);
