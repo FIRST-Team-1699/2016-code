@@ -1,10 +1,12 @@
 package org.usfirst.frc.team1699.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.RobotDrive.MotorType;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -13,6 +15,9 @@ public class Robot extends IterativeRobot {
     final String customAuto = "My Auto";
     String autoSelected;
     SendableChooser chooser;
+    
+    //Camera Server
+    CameraServer cam;
     
     //Joysticks
     Joystick extreme3d;
@@ -45,7 +50,7 @@ public class Robot extends IterativeRobot {
     // Open config files
     iniReader teleopIni = new iniReader("1699-config.ini");
     
-    // moar things
+    //Moar things
     
     // Joystick speed after "gearing"
     double xSpeed1;
@@ -54,10 +59,12 @@ public class Robot extends IterativeRobot {
     // Current "gear"
     double gearRatio;
     
-    // Read "gear" rations from ini
-    double gear1;
-    double gear2;
-    double gear3;
+    //Ini vars
+    final double gear1 = teleopIni.getValue("gear1");
+    final double gear2 = teleopIni.getValue("gear2");
+    final double gear3 = teleopIni.getValue("gear3");
+    
+    boolean notHeld;
     
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
@@ -95,14 +102,14 @@ public class Robot extends IterativeRobot {
         rightPickup = new VictorSP(6);
         
         //Drive
-        rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);
+        rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
         
-        //Ini vars
-        gear1 = teleopIni.getValue("gear1");
-        gear2 = teleopIni.getValue("gear2");
-        gear3 = teleopIni.getValue("gear3");
+        notHeld = false;
         
-        gearRatio = 1;
+        //Camera
+        cam = CameraServer.getInstance();
+        cam.setQuality(50);
+        cam.startAutomaticCapture("cam0");
     }
     
     public void autonomousInit() {
@@ -135,45 +142,13 @@ public class Robot extends IterativeRobot {
 //    	    button 1-4: shooter speeds
 //    	    button 5/6: camera switch
     	
-	/* All this code needs a rewrite
-    	//Control for right motors
-    	if(extreme3d3d3d3d3d.getX() == 1){
-    		//right forward
-    		rightDrive1.set(1);
-    		rightDrive2.set(1);
-    	}else if(extreme3d3d3d3d3d.getX() == -1){
-    		//right backward
-    		rightDrive1.set(-1);
-    		rightDrive2.set(-1);
-    	}else{
-    		//set all to 0
-    		rightDrive1.set(0);
-    		rightDrive2.set(0);
-    	}
-    	
-    	//Control for left drive
-    	if(attack3.getX() == 1){
-    		//left forward
-    		leftDrive1.set(1);
-    		leftDrive2.set(1);
-    	}else if(attack3.getX() == -1){
-    		//right backward
-    		leftDrive1.set(-1);
-    		leftDrive2.set(-1);
-    	}else{
-    		//set all to 0
-    		leftDrive1.set(0);
-    		leftDrive2.set(0);
-    	}
-    	*/
-    	
     	// gearing should go near robotDrive call
     	xSpeed1 = extreme3d.getRawAxis(1) * gearRatio;
-    	xSpeed2 = attack3.getRawAxis(1) * gearRatio;
+    	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
     	
-    	rDrive.tankDrive(xSpeed1, xSpeed2); // check call and logic, did on the fly 
+    	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
     	
-    	if(attack3.getRawButton(3)){
+    	/*if(attack3.getRawButton(3)){
     		//pickup
     		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
     		// call to get value example below
@@ -217,7 +192,7 @@ public class Robot extends IterativeRobot {
     		topShoot.set(0);
     		bottomShoot.set(0); 
     	}
-    	
+    	*/
     	//Camera control
     	if(xbox.getRawButton(5)){
     		//camera 1
@@ -226,19 +201,47 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Gearing control
-    	if(extreme3d.getTrigger())
+    	if(extreme3d.getTrigger() && !notHeld)
     	{
     		//gear up
-    		if (cGear == 1 || cGear == 2)
+    		if (cGear == 1)
     		{
     			cGear += 1;
-    			
+    			notHeld = true;
+    		}
+    		else if (cGear == 2)
+    		{
+    			cGear += 1;
+    			notHeld = true;
     		}
     	}
-    	else if(attack3.getTrigger())
+    	else if(attack3.getTrigger() && !notHeld)
     	{
-    		//gear down
+    		if (cGear == 3)
+    		{
+    			cGear = 2;
+    			notHeld = true;
+    		}
+    		else if (cGear == 2 && !notHeld)
+    		{
+    			cGear = 1;
+    			notHeld = true;
+    		}
     	}
+    	if (cGear == 1) {gearRatio = gear1;}
+    	else if (cGear == 2) {gearRatio = gear2;}
+    	else if (cGear == 3) {gearRatio = gear3;}
+    	else {gearRatio = 0.0;}
+    	
+    	if(!extreme3d.getTrigger() && notHeld)
+    	{
+    		notHeld = false;
+    	}
+    	System.out.println(gearRatio);
+    }
+    
+    public void disabledInit()
+    {
     }
     
     public void testPeriodic() {
