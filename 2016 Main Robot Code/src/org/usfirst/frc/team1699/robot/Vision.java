@@ -31,10 +31,10 @@ public class Vision {
             	 //Looks for a pixel of a certain color in the image
             	 if (color.getRed() == red && color.getGreen() == green && color.getBlue() == blue){
             		 //If the color is found that spot in the array is set to true
-            		 imgArr[y][x] = true;
+            		 imgArr[x][y] = true;
             	 }else{
             		//If the color is not found that spot in the array is set to false
-            		 imgArr[y][x] = false;
+            		 imgArr[x][y] = false;
             	 }
              }
 		 }
@@ -52,7 +52,7 @@ public class Vision {
 				 int c = image.getRGB(x, y);
 			   	 Color color = new Color(c);
 			   	 	
-				 colorArr[y][x] = color.getRGB();
+				 colorArr[x][y] = color.getRGB();
 			 }
 		 }
 		

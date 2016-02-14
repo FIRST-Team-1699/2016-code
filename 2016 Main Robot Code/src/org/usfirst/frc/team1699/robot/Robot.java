@@ -27,7 +27,7 @@ public class Robot extends IterativeRobot {
     CANTalon leftDrive2;
     
     // Robot Drive for easier motor control
-    RobotDrive rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);
+    RobotDrive rDrive;
     
     //Shooter Motors
     VictorSP leftShoot;
@@ -55,9 +55,9 @@ public class Robot extends IterativeRobot {
     double gearRatio;
     
     // Read "gear" rations from ini
-    double gear1 = teleopIni.getValue("gear1");
-    double gear2 = teleopIni.getValue("gear2");
-    double gear3 = teleopIni.getValue("gear3");
+    double gear1;
+    double gear2;
+    double gear3;
     
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
@@ -70,9 +70,9 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putData("Auto choices", chooser);
         
         //Human Controls
-        extreme3d = new Joystick(1);
-        attack3 = new Joystick(2);
-        xbox = new Joystick(3);
+        extreme3d = new Joystick(0);
+        attack3 = new Joystick(1);
+        xbox = new Joystick(2);
         
         //Motor Control
         //Drive Motors
@@ -93,6 +93,16 @@ public class Robot extends IterativeRobot {
         //Ball pickup
         leftPickup = new VictorSP(5);
         rightPickup = new VictorSP(6);
+        
+        //Drive
+        rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);
+        
+        //Ini vars
+        gear1 = teleopIni.getValue("gear1");
+        gear2 = teleopIni.getValue("gear2");
+        gear3 = teleopIni.getValue("gear3");
+        
+        gearRatio = 1;
     }
     
     public void autonomousInit() {
@@ -103,9 +113,10 @@ public class Robot extends IterativeRobot {
     public void autonomousPeriodic() {
     	switch(autoSelected) {
     	case customAuto:
-        //Put custom auto code here   
+        // alksdjf   
             break;
     	case defaultAuto:
+    		
     	default:
     	//Put default auto code here
             break;
@@ -157,10 +168,10 @@ public class Robot extends IterativeRobot {
     	*/
     	
     	// gearing should go near robotDrive call
-    	xSpeed1 = extreme3d.getX() * gearRatio;
-    	xSpeed2 = attack3.getX() * gearRatio;
+    	xSpeed1 = extreme3d.getRawAxis(1) * gearRatio;
+    	xSpeed2 = attack3.getRawAxis(1) * gearRatio;
     	
-    	rDrive.tankDrive(extreme3d.getX(), attack3.getX()); // check call and logic, did on the fly 
+    	rDrive.tankDrive(xSpeed1, xSpeed2); // check call and logic, did on the fly 
     	
     	if(attack3.getRawButton(3)){
     		//pickup
@@ -172,18 +183,6 @@ public class Robot extends IterativeRobot {
     		//set all 0
     		leftPickup.set(0);
     		rightPickup.set(0);
-    	}
-    	
-    	//Move shooter
-    	if(xbox.getZ() == 1){
-    		//shooter up
-    		shootAdjust.set(.4);
-    	}else if(xbox.getZ() == -1){
-    		//shooter down
-    		shootAdjust.set(-.4);
-    	}else{
-    		//set all 0
-    		shootAdjust.set(0);
     	}
     	
     	//Shoot with different speeds
@@ -232,7 +231,7 @@ public class Robot extends IterativeRobot {
     		//gear up
     		if (cGear == 1 || cGear == 2)
     		{
-    			cGear += 1;
+    			9+-cGear += 1;
     			
     		}
     	}
