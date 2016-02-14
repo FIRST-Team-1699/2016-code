@@ -231,7 +231,7 @@ public class Robot extends IterativeRobot {
     		//gear up
     		if (cGear == 1 || cGear == 2)
     		{
-    			9+-cGear += 1;
+    			cGear += 1;
     			
     		}
     	}
