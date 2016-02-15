@@ -150,7 +150,7 @@ public class Robot extends IterativeRobot {
     	
     	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
     	
-    	/*if(attack3.getRawButton(3)){
+    	if(attack3.getRawButton(3)){
     		//pickup
     		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
     		// call to get value example below
@@ -194,7 +194,7 @@ public class Robot extends IterativeRobot {
     		topShoot.set(0);
     		bottomShoot.set(0); 
     	}
-    	*/
+    	
     	//Camera control
     	if(xbox.getRawButton(5)){
     		//camera 1
