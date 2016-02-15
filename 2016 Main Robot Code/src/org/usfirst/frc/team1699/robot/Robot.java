@@ -64,7 +64,8 @@ public class Robot extends IterativeRobot {
     final double gear2 = teleopIni.getValue("gear2");
     final double gear3 = teleopIni.getValue("gear3");
     
-    boolean notHeld;
+    boolean leftNotHeld;
+    boolean rightNotHeld;
     
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
@@ -104,7 +105,8 @@ public class Robot extends IterativeRobot {
         //Drive
         rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
         
-        notHeld = false;
+        leftNotHeld = false;
+        rightNotHeld = false;
         
         //Camera
         cam = CameraServer.getInstance();
@@ -201,42 +203,47 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Gearing control
-    	if(extreme3d.getTrigger() && !notHeld)
+    	if(extreme3d.getTrigger() && !rightNotHeld)
     	{
     		//gear up
-    		if (cGear == 1)
-    		{
-    			cGear += 1;
-    			notHeld = true;
-    		}
-    		else if (cGear == 2)
-    		{
-    			cGear += 1;
-    			notHeld = true;
-    		}
-    	}
-    	else if(attack3.getTrigger() && !notHeld)
-    	{
-    		if (cGear == 3)
+    		if (cGear == 1 && !rightNotHeld)
     		{
     			cGear = 2;
-    			notHeld = true;
+    			rightNotHeld = true;
     		}
-    		else if (cGear == 2 && !notHeld)
+    		else if (cGear == 2 && !rightNotHeld)
     		{
-    			cGear = 1;
-    			notHeld = true;
+    			cGear = 3;
+    			rightNotHeld = true;
     		}
     	}
+    	else if(attack3.getTrigger() && !leftNotHeld)
+    	{
+    		//gear down
+    		if (cGear == 2 && !leftNotHeld)
+    		{
+    			cGear = 1;
+    			leftNotHeld = true;
+    		}
+    		else if (cGear == 3 && !leftNotHeld)
+    		{
+    			cGear = 2;
+    			leftNotHeld = true;
+    		}
+    	}
+    	
+    	
+    	if(!attack3.getTrigger() && leftNotHeld){
+    		leftNotHeld = false;
+    	}else if(!extreme3d.getTrigger() && rightNotHeld){
+    		rightNotHeld = false;
+    	}
+    	
     	if (cGear == 1) {gearRatio = gear1;}
     	else if (cGear == 2) {gearRatio = gear2;}
     	else if (cGear == 3) {gearRatio = gear3;}
     	else {gearRatio = 0.0;}
     	
-    	if(!extreme3d.getTrigger() && notHeld)
-    	{
-    		notHeld = false;
-    	}
     	System.out.println(gearRatio);
     }
     
