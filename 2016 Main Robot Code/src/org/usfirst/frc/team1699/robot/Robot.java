@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.RobotDrive.MotorType;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,17 +35,17 @@ public class Robot extends IterativeRobot {
     RobotDrive rDrive;
     
     //Shooter Motors
-    VictorSP leftShoot;
-    VictorSP rightShoot;
-    VictorSP bottomShoot;
-    VictorSP topShoot;
+    Talon leftShoot;
+    Talon rightShoot;
+    Talon bottomShoot;
+    Talon topShoot;
     
     //Shooter Adjustment
     VictorSP shootAdjust;
     
     //Ball pickup
     VictorSP leftPickup;
-    VictorSP rightPickup;
+    Talon rightPickup;
     
     // Open config files
     iniReader teleopIni = new iniReader("1699-config.ini");
@@ -90,17 +90,17 @@ public class Robot extends IterativeRobot {
         leftDrive2 = new CANTalon(13);
         
         //Shooter Motors
-        leftShoot = new VictorSP(0);
-        rightShoot = new VictorSP(1);
-        bottomShoot = new VictorSP(2);
-        topShoot = new VictorSP(3);
+        leftShoot = new Talon(0);
+        rightShoot = new Talon(1);
+        bottomShoot = new Talon(2);
+        topShoot = new Talon(3);
         
         //Shooter Adjustment
         shootAdjust = new VictorSP(4);
         
         //Ball pickup
         leftPickup = new VictorSP(5);
-        rightPickup = new VictorSP(6);
+        rightPickup = new Talon(6);
         
         //Drive
         rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
@@ -145,20 +145,22 @@ public class Robot extends IterativeRobot {
 //    	    button 5/6: camera switch
     	
     	// gearing should go near robotDrive call
-    	xSpeed1 = extreme3d.getRawAxis(1) * gearRatio;
-    	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
-    	
-    	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
+//    	xSpeed1 = extreme3d.getRawAxis(1) * gearRatio;
+//    	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
+//    	
+//    	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
     	
     	if(attack3.getRawButton(3)){
     		//pickup
     		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
     		// call to get value example below
-    		leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
-    		rightPickup.set(.8);
+    		//leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
+    		rightPickup.set(.6);
+    	}else if (attack3.getRawButton(2)){
+    		rightPickup.set(-.6);
     	}else{
     		//set all 0
-    		leftPickup.set(0);
+    		//leftPickup.set(0);
     		rightPickup.set(0);
     	}
     	
@@ -167,26 +169,26 @@ public class Robot extends IterativeRobot {
     		//shooter speed 1
     		leftShoot.set(.7);
     		rightShoot.set(.7);
-    		topShoot.set(.7);
-    		bottomShoot.set(.7);
+    		topShoot.set(-.7);
+    		bottomShoot.set(-.7);
     	}else if(xbox.getRawButton(2)){
     		//shooter speed 2
     		leftShoot.set(.8);
     		rightShoot.set(.8);
-    		topShoot.set(.8);
-    		bottomShoot.set(.8);
+    		topShoot.set(-.8);
+    		bottomShoot.set(-.8);
     	}else if(xbox.getRawButton(3)){
     		//shooter speed 3
     		leftShoot.set(.9);
     		rightShoot.set(.9);
-    		topShoot.set(.9);
-    		bottomShoot.set(.9);
+    		topShoot.set(-.9);
+    		bottomShoot.set(-.9);
     	}else if(xbox.getRawButton(4)){
     		//shooter speed 4
     		leftShoot.set(1);
     		rightShoot.set(1);
-    		topShoot.set(1);
-    		bottomShoot.set(1);
+    		topShoot.set(-1);
+    		bottomShoot.set(-1);
     	}else{
     		//set all 0
     		leftShoot.set(0);
@@ -195,54 +197,54 @@ public class Robot extends IterativeRobot {
     		bottomShoot.set(0); 
     	}
     	
-    	//Camera control
-    	if(xbox.getRawButton(5)){
-    		//camera 1
-    	}else if(xbox.getRawButton(6)){
-    		//camera 2
-    	}
-    	
-    	//Gearing control
-    	if(extreme3d.getTrigger() && !rightNotHeld)
-    	{
-    		//gear up
-    		if (cGear == 1 && !rightNotHeld)
-    		{
-    			cGear = 2;
-    			rightNotHeld = true;
-    		}
-    		else if (cGear == 2 && !rightNotHeld)
-    		{
-    			cGear = 3;
-    			rightNotHeld = true;
-    		}
-    	}
-    	else if(attack3.getTrigger() && !leftNotHeld)
-    	{
-    		//gear down
-    		if (cGear == 2 && !leftNotHeld)
-    		{
-    			cGear = 1;
-    			leftNotHeld = true;
-    		}
-    		else if (cGear == 3 && !leftNotHeld)
-    		{
-    			cGear = 2;
-    			leftNotHeld = true;
-    		}
-    	}
-    	
-    	
-    	if(!attack3.getTrigger() && leftNotHeld){
-    		leftNotHeld = false;
-    	}else if(!extreme3d.getTrigger() && rightNotHeld){
-    		rightNotHeld = false;
-    	}
-    	
-    	if (cGear == 1) {gearRatio = gear1;}
-    	else if (cGear == 2) {gearRatio = gear2;}
-    	else if (cGear == 3) {gearRatio = gear3;}
-    	else {gearRatio = 0.0;}
+//    	//Camera control
+//    	if(xbox.getRawButton(5)){
+//    		//camera 1
+//    	}else if(xbox.getRawButton(6)){
+//    		//camera 2
+//    	}
+//    	
+//    	//Gearing control
+//    	if(extreme3d.getTrigger() && !rightNotHeld)
+//    	{
+//    		//gear up
+//    		if (cGear == 1 && !rightNotHeld)
+//    		{
+//    			cGear = 2;
+//    			rightNotHeld = true;
+//    		}
+//    		else if (cGear == 2 && !rightNotHeld)
+//    		{
+//    			cGear = 3;
+//    			rightNotHeld = true;
+//    		}
+//    	}
+//    	else if(attack3.getTrigger() && !leftNotHeld)
+//    	{
+//    		//gear down
+//    		if (cGear == 2 && !leftNotHeld)
+//    		{
+//    			cGear = 1;
+//    			leftNotHeld = true;
+//    		}
+//    		else if (cGear == 3 && !leftNotHeld)
+//    		{
+//    			cGear = 2;
+//    			leftNotHeld = true;
+//    		}
+//    	}
+//    	
+//    	
+//    	if(!attack3.getTrigger() && leftNotHeld){
+//    		leftNotHeld = false;
+//    	}else if(!extreme3d.getTrigger() && rightNotHeld){
+//    		rightNotHeld = false;
+//    	}
+//    	
+//    	if (cGear == 1) {gearRatio = gear1;}
+//    	else if (cGear == 2) {gearRatio = gear2;}
+//    	else if (cGear == 3) {gearRatio = gear3;}
+//    	else {gearRatio = 0.0;}
     	
     	System.out.println(gearRatio);
     }
