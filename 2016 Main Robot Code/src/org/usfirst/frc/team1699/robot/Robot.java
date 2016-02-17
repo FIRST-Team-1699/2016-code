@@ -34,6 +34,8 @@ public class Robot extends IterativeRobot {
     // Robot Drive for easier motor control
     RobotDrive rDrive;
     
+
+Change to VictorSP
     //Shooter Motors
     Talon leftShoot;
     Talon rightShoot;
