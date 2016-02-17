@@ -34,20 +34,18 @@ public class Robot extends IterativeRobot {
     // Robot Drive for easier motor control
     RobotDrive rDrive;
     
-
-Change to VictorSP
     //Shooter Motors
-    Talon leftShoot;
-    Talon rightShoot;
-    Talon bottomShoot;
-    Talon topShoot;
+    VictorSP leftShoot;
+    VictorSP rightShoot;
+    VictorSP bottomShoot;
+    VictorSP topShoot;
     
     //Shooter Adjustment
     VictorSP shootAdjust;
     
     //Ball pickup
     VictorSP leftPickup;
-    Talon rightPickup;
+    VictorSP rightPickup;
     
     // Open config files
     iniReader teleopIni = new iniReader("1699-config.ini");
@@ -92,17 +90,17 @@ Change to VictorSP
         leftDrive2 = new CANTalon(13);
         
         //Shooter Motors
-        leftShoot = new Talon(0);
-        rightShoot = new Talon(1);
-        bottomShoot = new Talon(2);
-        topShoot = new Talon(3);
+        leftShoot = new VictorSP(0);
+        rightShoot = new VictorSP(1);
+        bottomShoot = new VictorSP(2);
+        topShoot = new VictorSP(3);
         
         //Shooter Adjustment
         shootAdjust = new VictorSP(4);
         
         //Ball pickup
         leftPickup = new VictorSP(5);
-        rightPickup = new Talon(6);
+        rightPickup = new VictorSP(6);
         
         //Drive
         rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
