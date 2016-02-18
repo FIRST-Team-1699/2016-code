@@ -71,7 +71,21 @@ public class Robot extends IterativeRobot {
     int cGear = 2; 
     
     //Joystick bindings
-    final int	TRIGGER_AXIS = 3;
+    
+    //Shooter
+    final int TRIGGER_AXIS = 3;
+    final int X_BUTTON = 1;
+    final int Y_BUTTON = 2;
+    final int A_BUTTON = 3;
+    final int B_BUTTON = 4;
+    
+    //Ball pickup
+    final int PICK_UP = 3;
+    final int DROP_BALL = 2;
+    
+    //Camera control
+    final int CAM_1 = 5;
+    final int CAM_2 = 6;
     
     public void robotInit() {  	
         chooser = new SendableChooser();
@@ -152,13 +166,13 @@ public class Robot extends IterativeRobot {
     	
     	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
     	
-    	if(attack3.getRawButton(3)){
+    	if(attack3.getRawButton(PICK_UP)){
     		//pickup
     		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
     		// call to get value example below
     		//leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.6);
-    	}else if (attack3.getRawButton(2)){
+    	}else if (attack3.getRawButton(DROP_BALL)){
     		rightPickup.set(-.6);
     	}else{
     		//set all 0
@@ -167,25 +181,25 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Shoot with different speeds
-    	if(xbox.getRawButton(1)){
+    	if(xbox.getRawButton(X_BUTTON)){
     		//shooter speed 1
     		leftShoot.set(.7);
     		rightShoot.set(.7);
     		topShoot.set(-.7);
     		bottomShoot.set(-.7);
-    	}else if(xbox.getRawButton(2)){
+    	}else if(xbox.getRawButton(Y_BUTTON)){
     		//shooter speed 2
     		leftShoot.set(.8);
     		rightShoot.set(.8);
     		topShoot.set(-.8);
     		bottomShoot.set(-.8);
-    	}else if(xbox.getRawButton(3)){
+    	}else if(xbox.getRawButton(A_BUTTON)){
     		//shooter speed 3
     		leftShoot.set(.9);
     		rightShoot.set(.9);
     		topShoot.set(-.9);
     		bottomShoot.set(-.9);
-    	}else if(xbox.getRawButton(4)){
+    	}else if(xbox.getRawButton(B_BUTTON)){
     		//shooter speed 4
     		leftShoot.set(1);
     		rightShoot.set(1);
@@ -200,16 +214,16 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Camera control
-    	if(xbox.getRawButton(5)){
+    	if(xbox.getRawButton(CAM_1)){
     		//camera 1
-    	}else if(xbox.getRawButton(6)){
+    	}else if(xbox.getRawButton(CAM_2)){
     		//camera 2
     	}
     	
     	//Shooter up and down
-    	if(xbox.getTrigger()){
+    	if(xbox.getRawAxis(TRIGGER_AXIS) == 1){
     		//shooter up
-    	}else if(xbox.getTrigger()){
+    	}else if(xbox.getRawAxis(TRIGGER_AXIS) == -1){
     		//shooter down
     	}else{
     		//stop movement
