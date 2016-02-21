@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,7 +43,7 @@ public class Robot extends IterativeRobot {
     VictorSP shootAdjust;
     
     //Ball pickup
-    VictorSP leftPickup;
+    //VictorSP leftPickup;
     VictorSP rightPickup;
     
     // Open config files
@@ -73,7 +72,8 @@ public class Robot extends IterativeRobot {
     //Joystick bindings
     
     //Shooter
-    final int TRIGGER_AXIS = 3;
+    final int TRIGGER_AXIS_1 = 3;
+    final int TRIGGER_AXIS_2 = 2;
     final int X_BUTTON = 1;
     final int Y_BUTTON = 2;
     final int A_BUTTON = 3;
@@ -82,6 +82,8 @@ public class Robot extends IterativeRobot {
     //Ball pickup
     final int PICK_UP = 3;
     final int DROP_BALL = 2;
+    final int XBOX_UP = 7;
+    final int XBOX_DOWN = 8;
     
     //Camera control
     final int CAM_1 = 5;
@@ -106,16 +108,16 @@ public class Robot extends IterativeRobot {
         leftDrive2 = new CANTalon(13);
         
         //Shooter Motors
-        leftShoot = new VictorSP(0);
-        rightShoot = new VictorSP(1);
-        bottomShoot = new VictorSP(2);
-        topShoot = new VictorSP(3);
+        leftShoot = new VictorSP(1);
+        rightShoot = new VictorSP(4);
+        bottomShoot = new VictorSP(3);
+        topShoot = new VictorSP(2);
         
         //Shooter Adjustment
-        shootAdjust = new VictorSP(4);
+        shootAdjust = new VictorSP(5);
         
         //Ball pickup
-        leftPickup = new VictorSP(5);
+        //leftPickup = new VictorSP(5);
         rightPickup = new VictorSP(6);
         
         //Drive
@@ -161,18 +163,20 @@ public class Robot extends IterativeRobot {
 //    	    button 5/6: camera switch
     	
     	//gearing should go near robotDrive call
-    	xSpeed1 = extreme3d.getRawAxis(1) * gearRatio;
+    	
+    	//Changed from raw axis must test
+    	xSpeed1 = -1 * extreme3d.getRawAxis(1) * gearRatio;
     	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
     	
     	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
     	
-    	if(attack3.getRawButton(PICK_UP)){
+    	if(attack3.getRawButton(PICK_UP) || xbox.getRawButton(XBOX_UP)){
     		//pickup
     		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
     		// call to get value example below
     		//leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.6);
-    	}else if (attack3.getRawButton(DROP_BALL)){
+    	}else if (attack3.getRawButton(DROP_BALL) || xbox.getRawButton(XBOX_DOWN)){
     		rightPickup.set(-.6);
     	}else{
     		//set all 0
@@ -183,26 +187,26 @@ public class Robot extends IterativeRobot {
     	//Shoot with different speeds
     	if(xbox.getRawButton(X_BUTTON)){
     		//shooter speed 1
-    		leftShoot.set(.7);
-    		rightShoot.set(.7);
-    		topShoot.set(-.7);
-    		bottomShoot.set(-.7);
+    		leftShoot.set(.2);
+    		rightShoot.set(-.2);
+    		topShoot.set(-.2);
+    		bottomShoot.set(-.2);
     	}else if(xbox.getRawButton(Y_BUTTON)){
     		//shooter speed 2
-    		leftShoot.set(.8);
-    		rightShoot.set(.8);
-    		topShoot.set(-.8);
-    		bottomShoot.set(-.8);
+    		leftShoot.set(.7);
+    		rightShoot.set(-.7);
+    		topShoot.set(-.7);
+    		bottomShoot.set(-.7);
     	}else if(xbox.getRawButton(A_BUTTON)){
     		//shooter speed 3
     		leftShoot.set(.9);
-    		rightShoot.set(.9);
-    		topShoot.set(-.9);
+    		rightShoot.set(-.9);
+    		topShoot.set(-.9); 
     		bottomShoot.set(-.9);
     	}else if(xbox.getRawButton(B_BUTTON)){
     		//shooter speed 4
     		leftShoot.set(1);
-    		rightShoot.set(1);
+    		rightShoot.set(-1);
     		topShoot.set(-1);
     		bottomShoot.set(-1);
     	}else{
@@ -221,12 +225,18 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Shooter up and down
-    	if(xbox.getRawAxis(TRIGGER_AXIS) == 1){
+    	if(xbox.getRawAxis(TRIGGER_AXIS_1) == 1){
     		//shooter up
-    	}else if(xbox.getRawAxis(TRIGGER_AXIS) == -1){
+    		//shootAdjust.set(.2);
+    		//rightPickup.set(.6);
+    	}else if(xbox.getRawAxis(TRIGGER_AXIS_2) == 1){
     		//shooter down
+    		//shootAdjust.set(-.2);
+    		//rightPickup.set(-.6);
     	}else{
     		//stop movement
+    		//shootAdjust.set(0);
+    		//rightPickup.set(0);
     	}
     	
     	//Gearing control
