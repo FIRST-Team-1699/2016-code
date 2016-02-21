@@ -13,3 +13,5 @@ Test all code written so far
 Finish wiring
 
 Full systems check
+
+Don't lose streak
