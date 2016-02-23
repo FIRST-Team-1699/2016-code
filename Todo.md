@@ -13,3 +13,5 @@ Full systems check
 Keep it alive
 
 Sleep
+
+Check that all wires are secured
