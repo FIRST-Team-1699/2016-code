@@ -4,13 +4,11 @@ Finish code for lead screw -- Maybe
 
 Finish vision code
 
-Test autonomous
+Finish and test autonomous
 
 Create a dashboard
 
-Full systems check
-
-Keep it alive
+Keep it alive -- the streak
 
 Sleep
 
