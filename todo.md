@@ -14,8 +14,8 @@ Sleep
 
 Check that all wires are secured
 
-**update all firmwares**
+**Update all firmwares**
 
-**cover all ununsed RIO ports (duct tape or electrical?)**
+**Cover all ununsed RIO ports (duct tape or electrical?)**
 
 **Update driver startion**
