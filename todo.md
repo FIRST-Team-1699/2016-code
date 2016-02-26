@@ -2,15 +2,15 @@ What we need to finish:
 
 ~~Finish code for lead screw -- Maybe~~
 
-Finish vision code
+Finish vision code -- comms, analyze image
 
-Finish and test autonomous
+Finish and test autonomous -- fix encoders
 
 Create a dashboard
 
 Keep it alive -- the streak     *huehue no*
 
-Sleep
+Sleep -- getting there
 
 Check that all wires are secured
 
