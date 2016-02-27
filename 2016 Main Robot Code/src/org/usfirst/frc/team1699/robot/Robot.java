@@ -9,11 +9,24 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+
+import org.apache.commons.io.output.TeeOutputStream;
+
 public class Robot extends IterativeRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     String autoSelected;
     SendableChooser chooser;
+    
+    // Logging decelerations
+    File logf;
+    Runtime runtime;
     
     //Camera Server
     CameraServer cam;
@@ -47,7 +60,7 @@ public class Robot extends IterativeRobot {
     VictorSP rightPickup;
     
     // Open config files
-    iniReader teleopIni = new iniReader("1699-config.ini");
+    iniReader teleopIni;
     
     //Moar things
     
@@ -59,9 +72,9 @@ public class Robot extends IterativeRobot {
     double gearRatio;
     
     //Ini vars
-    final double gear1 = teleopIni.getValue("gear1");
-    final double gear2 = teleopIni.getValue("gear2");
-    final double gear3 = teleopIni.getValue("gear3");
+    double gear1;
+    double gear2;
+    double gear3;
       
     boolean leftNotHeld;
     boolean rightNotHeld;
@@ -89,7 +102,19 @@ public class Robot extends IterativeRobot {
     final int CAM_1 = 5;
     final int CAM_2 = 6;
     
-    public void robotInit() {  	
+    
+    
+    public void robotInit() { 
+    	// Logging start
+    	this.loggingInit();
+    	
+    	// iniReader
+    	teleopIni = new iniReader("1699-config.ini");
+    	gear1 = teleopIni.getValue("gear1");
+        gear2 = teleopIni.getValue("gear2");
+        gear3 = teleopIni.getValue("gear3");
+    	
+    	// Autonomous chooser
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
@@ -129,8 +154,55 @@ public class Robot extends IterativeRobot {
         //Camera
         cam = CameraServer.getInstance();
         cam.setQuality(50);
-        cam.startAutomaticCapture("cam0");
+        cam.startAutomaticCapture("cam0");  
     }
+    
+    // Starts logging, should be called first thing
+    // apache-commons-io needs to be installed on the RIO and linked on the local PC
+    public void loggingInit()
+    {
+        // More initializers, please. 
+        runtime = Runtime.getRuntime();
+        Process p;
+        boolean logfcont = true;
+        Integer logfcount = new Integer(0);
+        
+        // Looks for non-existent log file
+        while (logfcont)
+        {
+        	logf = new File("/home/lvuser/1699-logs/log-" + logfcount + ".log");
+        	if (logf.exists()) 
+        	{
+        		logfcont = true;
+        		logfcount += 1;
+        	}
+        	else {logfcont = false;}
+        }
+        
+        // Renames current log file to the last number in the list
+        try {p = runtime.exec("mv /home/lvuser/1699-logs/log-current.log /home/lvuser/1699-logs/log-" + logfcount.toString() + ".log");}
+        catch (Exception e) {e.printStackTrace();}
+        
+        // Prepares for new log
+        logf = new File("/home/lvuser/1699-logs/log-current.log");
+        try {logf.createNewFile();} 
+        catch (IOException e) {System.out.println("BIG ERROR\n\n\n\n\n\n");e.printStackTrace();}
+        try
+        {
+        	// Makes new output stream in log-current.log
+        	FileOutputStream fos = new FileOutputStream(logf);
+        	// Makes Dual-output, called Tee for some reason.
+        	TeeOutputStream tos = new TeeOutputStream(System.out, fos);
+        	// Makes a PrintStream out of the new, dual-output Tee 
+        	PrintStream ps = new PrintStream(tos);
+        	// Sets the above PrintStream to System.out
+        	System.setOut(ps);
+        	System.out.println("Success setting Tee Output Stream.");
+        } 
+        catch (FileNotFoundException e) {e.printStackTrace();}
+        catch (Exception e) {e.printStackTrace();}
+    }	
+               
     
     public void autonomousInit() {
     	autoSelected = (String) chooser.getSelected();

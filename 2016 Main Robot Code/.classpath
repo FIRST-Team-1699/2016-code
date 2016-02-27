@@ -4,5 +4,17 @@
 	<classpathentry kind="var" path="wpilib" sourcepath="wpilib.sources"/>
 	<classpathentry kind="var" path="networktables" sourcepath="networktables.sources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/apache-commons-io"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ApacheCommonsLang"/>
+	<classpathentry kind="lib" path="C:/Users/Team_1699_2/FRC Java Data/workspace/2016 Main Robot Code/libs/commons-io-2.4-bin/commons-io-2.4/commons-io-2.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://commons.apache.org/proper/commons-io/javadocs/api-2.4/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Team_1699_2/FRC Java Data/workspace/2016 Main Robot Code/libs/commons-lang3-3.4-bin/commons-lang3-3.4/commons-lang3-3.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://commons.apache.org/proper/commons-lang/javadocs/api-3.4/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
