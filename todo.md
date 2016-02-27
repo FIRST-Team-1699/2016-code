@@ -2,7 +2,7 @@ What we need to finish:
 
 ~~Finish code for lead screw -- Maybe~~
 
-Finish vision code -- comms, analyze image
+Finish vision code -- comms, analyze image, see things, GRIP
 
 Finish and test autonomous -- fix encoders
 
