@@ -31,3 +31,5 @@ Vision Processing:
         Send information and image to roboRio
 
         Send image to Driver Station
+         
+        Determine how to move or align shooter
