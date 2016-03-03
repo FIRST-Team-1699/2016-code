@@ -8,7 +8,7 @@ Finish and test autonomous -- fix encoders
 
 Create a dashboard
 
-Keep it alive -- the streak     *huehue no* *yes*
+Keep it alive -- Its gone
 
 Sleep -- getting there
 
