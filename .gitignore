@@ -2,4 +2,5 @@
 2016 Main Robot Code/build/*
 2016 Main Robot Code/libs/commons-io-2.4-bin/*
 2016 Main Robot Code/libs/commons-lang3-3.4-bin/*
+!2016 Main Robot Code/build/jars/*
 
