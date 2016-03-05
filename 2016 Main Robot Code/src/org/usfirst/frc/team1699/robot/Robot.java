@@ -2,6 +2,7 @@ package org.usfirst.frc.team1699.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -14,13 +15,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-
+import java.util.ArrayList;
 import org.apache.commons.io.output.TeeOutputStream;
 
 public class Robot extends IterativeRobot {
-    final String defaultAuto = "Default";
-    final String customAuto = "My Auto";
+    // Autonomous Chooser strings
+	final String defaultAuto = "1699-autoDef";
+    final String auto1S = "1699-auto1";
+    final String auto2S = "1699-auto2";
+    final String auto3S = "1699-auto3";
+    final String auto4S = "1699-auto4";
+    final String auto5S = "1699-auto5";
+    final String auto6S = "1699-auto6";
+    final String auto7S = "1699-auto7";
+    final String auto8S = "1699-auto8";
     String autoSelected;
     SendableChooser chooser;
     
@@ -46,16 +54,16 @@ public class Robot extends IterativeRobot {
     // Robot Drive for easier motor control
     RobotDrive rDrive;
     
+    // Encoders
+    Encoder frontLeftE;
+    Encoder frontRightE;
+    
     //Shooter Motors
     VictorSP leftShoot;
     VictorSP rightShoot;
     VictorSP bottomShoot;
     VictorSP topShoot;
     
-    //Shooter Adjustment
-    VictorSP shootAdjust;
-    
-    //Ball pickup
     //VictorSP leftPickup;
     VictorSP rightPickup;
     
@@ -63,7 +71,6 @@ public class Robot extends IterativeRobot {
     iniReader teleopIni;
     
     //Moar things
-    
     // Joystick speed after "gearing"
     double xSpeed1;
     double xSpeed2;
@@ -76,6 +83,8 @@ public class Robot extends IterativeRobot {
     double gear2;
     double gear3;
       
+    double autoSpeed;
+    
     boolean leftNotHeld;
     boolean rightNotHeld;
     
@@ -83,7 +92,7 @@ public class Robot extends IterativeRobot {
     int cGear = 2; 
     
     //Joystick bindings
-    
+    // ALL should be finals
     //Shooter
     final int TRIGGER_AXIS_1 = 3;
     final int TRIGGER_AXIS_2 = 2;
@@ -117,8 +126,15 @@ public class Robot extends IterativeRobot {
     	// Autonomous chooser
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);
+        chooser.addObject("Autonomous 1", auto1S);
+        chooser.addObject("Autonomous 2", auto2S);
+        chooser.addObject("Autonomous 3", auto3S);
+        chooser.addObject("Autonomous 4", auto4S);
+        chooser.addObject("Autonomous 5", auto5S);
+        chooser.addObject("Autonomous 6", auto6S);
+        chooser.addObject("Autonomous 7", auto7S);
+        chooser.addObject("Autonomous 8", auto8S);
+        SmartDashboard.putData("Auto Chooser", chooser);
         
         //Human Controls
         extreme3d = new Joystick(0);
@@ -134,12 +150,9 @@ public class Robot extends IterativeRobot {
         
         //Shooter Motors
         leftShoot = new VictorSP(1);
-        rightShoot = new VictorSP(4);
-        bottomShoot = new VictorSP(3);
         topShoot = new VictorSP(2);
-        
-        //Shooter Adjustment
-        shootAdjust = new VictorSP(5);
+        bottomShoot = new VictorSP(3);
+        rightShoot = new VictorSP(4);
         
         //Ball pickup
         //leftPickup = new VictorSP(5);
@@ -148,6 +161,13 @@ public class Robot extends IterativeRobot {
         //Drive
         rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
         
+        // More Encoders
+        frontLeftE = new Encoder(1, 2, true, Encoder.EncodingType.k4X);
+        frontRightE = new Encoder(3, 4, true, Encoder.EncodingType.k4X);
+        frontLeftE.setDistancePerPulse(12.0);
+        frontRightE.setDistancePerPulse(12.0);
+        
+        // Joystick booleans
         leftNotHeld = false;
         rightNotHeld = false;
         
@@ -163,7 +183,8 @@ public class Robot extends IterativeRobot {
     {
         // More initializers, please. 
         runtime = Runtime.getRuntime();
-        Process p;
+        @SuppressWarnings("unused") // Actually used tho
+		Process p;
         boolean logfcont = true;
         Integer logfcount = new Integer(0);
         
@@ -191,10 +212,13 @@ public class Robot extends IterativeRobot {
         {
         	// Makes new output stream in log-current.log
         	FileOutputStream fos = new FileOutputStream(logf);
+        	
         	// Makes Dual-output, called Tee for some reason.
         	TeeOutputStream tos = new TeeOutputStream(System.out, fos);
+        	
         	// Makes a PrintStream out of the new, dual-output Tee 
         	PrintStream ps = new PrintStream(tos);
+        	
         	// Sets the above PrintStream to System.out
         	System.setOut(ps);
         	System.out.println("Success setting Tee Output Stream.");
@@ -209,16 +233,121 @@ public class Robot extends IterativeRobot {
 		System.out.println("Auto selected: " + autoSelected);
     }
 
-    public void autonomousPeriodic() {
-    	switch(autoSelected) {
-    	case customAuto:
-        // alksdjf   
-            break;
-    	case defaultAuto:
+    public void autonomousPeriodic() 
+    {
+    	// Get commands from ini file
+    	iniReader autoCommands = new iniReader(autoSelected + ".ini");
+    	@SuppressWarnings("rawtypes") // Java doesn't like it when multiple types in an ArrayList, but I do
+		ArrayList commands = autoCommands.getFile(); 
+    	int count1 = 0;    	
+    	
+    	// Read through ArrayList
+    	while (count1 != commands.size())
+    	{
+    		// Looks for key words in the ini
+    		@SuppressWarnings("rawtypes") 
+			ArrayList ref = (ArrayList) commands.get(count1);
+    		Double value = (Double) ref.get(1);
+    		String keyword = ((String) (ref.get(0))).toLowerCase();
     		
-    	default:
-    	//Put default auto code here
-            break;
+    		// Make a case for all possible words
+    		switch (keyword)
+    		{
+	    		// Drive command
+    			case "drive":
+	    		{
+	    			double length = (double) value;
+	    			double traveled = 0;
+	    			
+	    			while (traveled < length)
+	    			{
+	    				rDrive.arcadeDrive(autoSpeed, 0);
+	    				traveled = (double) ((frontLeftE.getDistance() + frontRightE.getDistance()) / 2);
+	    			}
+	    			rDrive.arcadeDrive(0, 0); 
+	    			frontLeftE.reset();
+	    			frontRightE.reset();
+	    		}
+	    		
+	    		// Rotate command
+	    		case "rotate":
+	    		{
+	    			double traveled = 0;
+	    			
+	    			// Check if positive
+	    			if (value > 0)
+	    			{
+	    				// If so, go left
+	    				while (traveled < Math.abs(value))
+	    				{
+	    					rDrive.tankDrive(autoSpeed, 0);
+		    				traveled = (double) frontLeftE.getDistance();
+	    				}
+	    			}
+	    			
+	    			// Check if negative
+	    			else if (value < 0)
+	    			{
+	    				// If so, go right
+	    				while (traveled < Math.abs(value))
+		    			{
+		    				rDrive.tankDrive(0, autoSpeed);
+			    			traveled = (double) frontRightE.getDistance();
+		    			}
+	    			}
+	    			
+	    			// Stop spinning
+	    			rDrive.tankDrive(0, 0);
+	    		}
+	    		
+	    		// Sleep command
+	    		case "sleep":
+	    		{
+	    			try {Thread.sleep((long) (value * 1000));} 
+	    			catch (InterruptedException e) {e.printStackTrace();}
+	    		}
+	    		
+	    		// Shoot command
+	    		case "shoot":
+	    		{
+	    			if (value == 1.0)
+	    			{
+	    				// Start shooter motors
+	    				leftShoot.set(.7);
+	    				rightShoot.set(-.7);
+	    				topShoot.set(-.7);
+	    				bottomShoot.set(-.7);
+	    				
+	    				// Spin up wait
+	    				try {Thread.sleep(750);} 
+	    				catch (InterruptedException e) {e.printStackTrace();}
+	    				
+	    				// Send ball into shooter motors
+	    				rightPickup.set(.6);
+	    				try {Thread.sleep(2000);} 
+	    				catch (InterruptedException e) {e.printStackTrace();}
+	    				
+	    				// Stop shooter motors
+	    				leftShoot.set(0);
+	    				rightShoot.set(0);
+	    				topShoot.set(0);
+	    				bottomShoot.set(0);
+	    			}
+	    		}
+	    		
+	    		default: {System.out.println("Command not found at line: " + count1 + " in file " + autoSelected + ".ini");}	
+    		}
+    		
+    		// A safety that will stop the robot after a command is executed
+    		rDrive.arcadeDrive(0, 0);
+    		
+    		leftShoot.set(0);
+			rightShoot.set(0);
+			topShoot.set(0);
+			bottomShoot.set(0);
+    		
+    		// Continue the loop!
+    		count1 += 1;
     	}
     }
 
