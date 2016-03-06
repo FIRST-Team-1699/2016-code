@@ -1,3 +1,8 @@
+/*
+FIRST Team 1699's 2016 Robot Code
+
+v#M.#m.#s, published on <date>, used at $event_name
+*/
 package org.usfirst.frc.team1699.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
@@ -13,9 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+
 import org.apache.commons.io.output.TeeOutputStream;
 
 public class Robot extends IterativeRobot {
@@ -67,7 +72,7 @@ public class Robot extends IterativeRobot {
     //VictorSP leftPickup;
     VictorSP rightPickup;
     
-    // Open config files
+    // Initialize ini file
     iniReader teleopIni;
     
     //Moar things
@@ -75,23 +80,37 @@ public class Robot extends IterativeRobot {
     double xSpeed1;
     double xSpeed2;
     
-    // Current "gear"
-    double gearRatio;
-    
-    //Ini vars
-    double gear1;
-    double gear2;
-    double gear3;
-      
-    double autoSpeed;
-    
+    // Joystick single boolean variables
     boolean leftNotHeld;
     boolean rightNotHeld;
+    
+    // Current "gear" ratio
+    double gearRatio;
     
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
     
-    //Joystick bindings
+    //ini retrieved
+    double gear1;
+    double gear2;
+    double gear3;
+    double autoSpeed;
+    double pickupSpeed;
+    double shooterMotorSpeed1;
+    double shooterMotorSpeed2;
+    double shooterMotorSpeed3;
+    double shooterMotorSpeed4;
+    
+    // Autonomous variables
+    double iter;
+    int autoCount1;
+    iniReader autoCommands;
+    @SuppressWarnings("rawtypes")
+	ArrayList commands;
+    @SuppressWarnings("rawtypes")
+	ArrayList cCommand;    
+    
+    // Joystick bindings
     // ALL should be finals
     //Shooter
     final int TRIGGER_AXIS_1 = 3;
@@ -111,8 +130,6 @@ public class Robot extends IterativeRobot {
     final int CAM_1 = 5;
     final int CAM_2 = 6;
     
-    
-    
     public void robotInit() { 
     	// Logging start
     	this.loggingInit();
@@ -122,6 +139,12 @@ public class Robot extends IterativeRobot {
     	gear1 = teleopIni.getValue("gear1");
         gear2 = teleopIni.getValue("gear2");
         gear3 = teleopIni.getValue("gear3");
+        autoSpeed = teleopIni.getValue("autoSpeed");
+        pickupSpeed = teleopIni.getValue("pickupSpeed");
+        shooterMotorSpeed1 = teleopIni.getValue("shooterMotorSpeed1");
+        shooterMotorSpeed2 = teleopIni.getValue("shooterMotorSpeed2");
+        shooterMotorSpeed3 = teleopIni.getValue("shooterMotorSpeed3");
+        shooterMotorSpeed4 = teleopIni.getValue("shooterMotorSpeed4");
     	
     	// Autonomous chooser
         chooser = new SendableChooser();
@@ -155,7 +178,6 @@ public class Robot extends IterativeRobot {
         rightShoot = new VictorSP(4);
         
         //Ball pickup
-        //leftPickup = new VictorSP(5);
         rightPickup = new VictorSP(6);
         
         //Drive
@@ -178,7 +200,7 @@ public class Robot extends IterativeRobot {
     }
     
     // Starts logging, should be called first thing
-    // apache-commons-io needs to be installed on the RIO and linked on the local PC
+    // Apache Commons needs to be property linked on the local PC (use libs/libs.md for tutorial)
     public void loggingInit()
     {
         // More initializers, please. 
@@ -200,14 +222,16 @@ public class Robot extends IterativeRobot {
         	else {logfcont = false;}
         }
         
-        // Renames current log file to the last number in the list
-        try {p = runtime.exec("mv /home/lvuser/1699-logs/log-current.log /home/lvuser/1699-logs/log-" + logfcount.toString() + ".log");}
+        // Renames current log file to the last number in the list and creates new log file
+        try 
+        {
+        	p = runtime.exec("mv /home/lvuser/1699-logs/log-current.log /home/lvuser/1699-logs/log-" + logfcount.toString() + ".log");
+        	p = runtime.exec("touch /home/lvuser/1699-logs/log-current.log");
+        }
         catch (Exception e) {e.printStackTrace();}
         
         // Prepares for new log
         logf = new File("/home/lvuser/1699-logs/log-current.log");
-        try {logf.createNewFile();} 
-        catch (IOException e) {System.out.println("BIG ERROR\n\n\n\n\n\n");e.printStackTrace();}
         try
         {
         	// Makes new output stream in log-current.log
@@ -226,190 +250,174 @@ public class Robot extends IterativeRobot {
         catch (FileNotFoundException e) {e.printStackTrace();}
         catch (Exception e) {e.printStackTrace();}
     }	
-               
     
+    // Tells us that the robot is disabled
+    public void disabledInit()
+    {
+    	System.out.println("|------------------------------------------------------|");
+    	System.out.println("| Team 1699 Robot: awating drive mode                  |");
+    	System.out.println("|------------------------------------------------------|");
+    }    
+    
+    // Runs before autonomous
     public void autonomousInit() {
     	autoSelected = (String) chooser.getSelected();
 		System.out.println("Auto selected: " + autoSelected);
+		iter = 0;
+    	autoCommands = new iniReader(autoSelected + ".ini");
+    	commands = autoCommands.getFile();
+    	autoCount1 = 0;
     }
 
+    // Called periodically during autonomous
     public void autonomousPeriodic() 
     {
-    	// Get commands from ini file
-    	iniReader autoCommands = new iniReader(autoSelected + ".ini");
-    	@SuppressWarnings("rawtypes") // Java doesn't like it when multiple types in an ArrayList, but I do
-		ArrayList commands = autoCommands.getFile(); 
-    	int count1 = 0;    	
-    	
-    	// Read through ArrayList
-    	while (count1 != commands.size())
+    	// NOTE: this loop's unit is milliseconds!
+    	try
     	{
-    		// Looks for key words in the ini
-    		@SuppressWarnings("rawtypes") 
-			ArrayList ref = (ArrayList) commands.get(count1);
-    		Double value = (Double) ref.get(1);
-    		String keyword = ((String) (ref.get(0))).toLowerCase();
+    		cCommand = ((ArrayList) commands.get(autoCount1));
+    
+    		switch (((String) cCommand.get(0)).toLowerCase()){
     		
-    		// Make a case for all possible words
-    		switch (keyword)
-    		{
-	    		// Drive command
+    			// Sets drive motors to speed
     			case "drive":
-	    		{
-	    			double length = (double) value;
-	    			double traveled = 0;
-	    			
-	    			while (traveled < length)
-	    			{
-	    				rDrive.arcadeDrive(autoSpeed, 0);
-	    				traveled = (double) ((frontLeftE.getDistance() + frontRightE.getDistance()) / 2);
-	    			}
-	    			rDrive.arcadeDrive(0, 0); 
-	    			frontLeftE.reset();
-	    			frontRightE.reset();
-	    		}
-	    		
-	    		// Rotate command
-	    		case "rotate":
-	    		{
-	    			double traveled = 0;
-	    			
-	    			// Check if positive
-	    			if (value > 0)
-	    			{
-	    				// If so, go left
-	    				while (traveled < Math.abs(value))
-	    				{
-	    					rDrive.tankDrive(autoSpeed, 0);
-		    				traveled = (double) frontLeftE.getDistance();
-	    				}
-	    			}
-	    			
-	    			// Check if negative
-	    			else if (value < 0)
-	    			{
-	    				// If so, go right
-	    				while (traveled < Math.abs(value))
-		    			{
-		    				rDrive.tankDrive(0, autoSpeed);
-			    			traveled = (double) frontRightE.getDistance();
-		    			}
-	    			}
-	    			
-	    			// Stop spinning
-	    			rDrive.tankDrive(0, 0);
-	    		}
-	    		
-	    		// Sleep command
-	    		case "sleep":
-	    		{
-	    			try {Thread.sleep((long) (value * 1000));} 
-	    			catch (InterruptedException e) {e.printStackTrace();}
-	    		}
-	    		
-	    		// Shoot command
-	    		case "shoot":
-	    		{
-	    			if (value == 1.0)
-	    			{
-	    				// Start shooter motors
-	    				leftShoot.set(.7);
-	    				rightShoot.set(-.7);
-	    				topShoot.set(-.7);
-	    				bottomShoot.set(-.7);
-	    				
-	    				// Spin up wait
-	    				try {Thread.sleep(750);} 
-	    				catch (InterruptedException e) {e.printStackTrace();}
-	    				
-	    				// Send ball into shooter motors
-	    				rightPickup.set(.6);
-	    				try {Thread.sleep(2000);} 
-	    				catch (InterruptedException e) {e.printStackTrace();}
-	    				
-	    				// Stop shooter motors
-	    				leftShoot.set(0);
-	    				rightShoot.set(0);
-	    				topShoot.set(0);
-	    				bottomShoot.set(0);
-	    			}
-	    		}
-	    		
-	    		default: {System.out.println("Command not found at line: " + count1 + " in file " + autoSelected + ".ini");}	
+    			{
+    				rDrive.arcadeDrive(autoSpeed, 0);
+    			}
+    		
+    			// Sets one side of drive motors to speed (to try and turn)
+    			case "rotate":
+    			{
+    				// Check if positive
+    				if ((double) cCommand.get(1) > 0)
+    				{
+    					rDrive.tankDrive(autoSpeed, 0);
+    				}
+    			
+    				// Check if negative
+    				if ((double) cCommand.get(1) < 0)
+    				{
+    					rDrive.tankDrive(0, autoSpeed);
+    				}	
+    			}
+    		
+    			// Stops all robot functions
+    			case "sleep":
+    			{
+    				rDrive.arcadeDrive(0, 0);
+    				rightPickup.set(0);
+    				leftShoot.set(0);
+    				rightShoot.set(0);
+    				topShoot.set(0);
+    				bottomShoot.set(0);
+    			}
+    		
+    			// Spins up shooter motors at value defined in ini
+    			case "shooter-spinup":
+    			{
+    				leftShoot.set(1 * shooterMotorSpeed2);
+    				rightShoot.set(-1 * shooterMotorSpeed2);
+    				topShoot.set(-1 * shooterMotorSpeed2);
+    				bottomShoot.set(-1 * shooterMotorSpeed2);
+    			}
+    		
+    			// Spins pickup motor, hence firing the shooter
+    			case "shooter-fire":
+    			{
+    				rightPickup.set(.6);
+    			}
+    		
+    			// Complain
+    			default:
+    			{
+    				System.out.println("Command not recognized at line: " + autoCount1 + " in file: " + autoSelected + ".ini");
+    			}
+    	
+    		}
+    		if (iter > ((double) cCommand.get(1)))
+    		{
+    			autoCount1 += 1;
+    			iter = 0;
     		}
     		
-    		// A safety that will stop the robot after a command is executed
-    		rDrive.arcadeDrive(0, 0);
-    		
-    		leftShoot.set(0);
-			rightShoot.set(0);
-			topShoot.set(0);
-			bottomShoot.set(0);
-    		
-    		// Continue the loop!
-    		count1 += 1;
+    		// Iterate and sleep for a millisecond
+    		iter += 1;    		
+    		try {Thread.sleep(1);}
+    		catch (InterruptedException e) {e.printStackTrace();}
+    	}
+    	// For when the file runs out of commands
+    	catch (IndexOutOfBoundsException e)
+    	{
+    		System.out.println("Ran out of commands :/");
+    		e.printStackTrace();
+    		try {Thread.sleep((long) ((15000 - iter) - 5));}
+    		catch (InterruptedException e1) {e1.printStackTrace();}
     	}
     }
-
+    
     public void teleopPeriodic() {
-//    	Joystick 1 (extreme3d):
-//    	    x-axis: drive right side
-//    	Joystick 2 (attack3):
-//    	    x-axis: drive left side
-//    	    button 3: pickup
-//    	Driver 2:
-//    	Joystick 1 (xbox):
-//    	    axis 3: shooter up/down
-//    	    button 1-4: shooter speeds
-//    	    button 5/6: camera switch
+    	/*
+    	 * Reference Driver Input sheet
+    	 * 
+    	 * Driver 1:
+    	 * Joystick 1 (extreme3d):
+    	 *   x-axis: drive right side
+    	 * Joystick 2 (attack3):
+    	 *   x-axis: drive left side
+    	 *   button 3: pickup
+    	 *   
+    	 * Driver 2:
+    	 * Joystick 1 (xbox):
+    	 *   axis 3: shooter up/down
+    	 *   button 1-4: shooter speeds
+    	 *   button 5/6: camera switch
+    	 * 
+    	*/
     	
-    	//gearing should go near robotDrive call
-    	
-    	//Changed from raw axis must test
+    	// Gearing "application" logic
     	xSpeed1 = -1 * extreme3d.getRawAxis(1) * gearRatio;
     	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
     	
-    	rDrive.tankDrive(xSpeed2, xSpeed1); // check call and logic, did on the fly 
+    	// Actually SPIN the drive motors
+    	rDrive.tankDrive(xSpeed2, xSpeed1);
     	
+    	// Ball pickup logic
     	if(attack3.getRawButton(PICK_UP) || xbox.getRawButton(XBOX_UP)){
     		//pickup
-    		// all motors (except for drive) (or anything that we will never change) should be revived from the ini
-    		// call to get value example below
-    		//leftPickup.set(teleopIni.getValue("leftPickupSpeed"));
     		rightPickup.set(.6);
     	}else if (attack3.getRawButton(DROP_BALL) || xbox.getRawButton(XBOX_DOWN)){
+    		//set down
     		rightPickup.set(-.6);
     	}else{
     		//set all 0
-    		//leftPickup.set(0);
     		rightPickup.set(0);
     	}
     	
     	//Shoot with different speeds
     	if(xbox.getRawButton(X_BUTTON)){
     		//shooter speed 1
-    		leftShoot.set(.2);
-    		rightShoot.set(-.2);
-    		topShoot.set(-.2);
-    		bottomShoot.set(-.2);
+    		leftShoot.set(1 * shooterMotorSpeed1);
+			rightShoot.set(-1 * shooterMotorSpeed1);
+			topShoot.set(-1 * shooterMotorSpeed1);
+			bottomShoot.set(-1 * shooterMotorSpeed1);
     	}else if(xbox.getRawButton(Y_BUTTON)){
     		//shooter speed 2
-    		leftShoot.set(.7);
-    		rightShoot.set(-.7);
-    		topShoot.set(-.7);
-    		bottomShoot.set(-.7);
+    		leftShoot.set(1 * shooterMotorSpeed2);
+			rightShoot.set(-1 * shooterMotorSpeed2);
+			topShoot.set(-1 * shooterMotorSpeed2);
+			bottomShoot.set(-1 * shooterMotorSpeed2);
     	}else if(xbox.getRawButton(A_BUTTON)){
     		//shooter speed 3
-    		leftShoot.set(.9);
-    		rightShoot.set(-.9);
-    		topShoot.set(-.9); 
-    		bottomShoot.set(-.9);
+    		leftShoot.set(1 * shooterMotorSpeed3);
+			rightShoot.set(-1 * shooterMotorSpeed3);
+			topShoot.set(-1 * shooterMotorSpeed3);
+			bottomShoot.set(-1 * shooterMotorSpeed3);
     	}else if(xbox.getRawButton(B_BUTTON)){
     		//shooter speed 4
-    		leftShoot.set(1);
-    		rightShoot.set(-1);
-    		topShoot.set(-1);
-    		bottomShoot.set(-1);
+    		leftShoot.set(1 * shooterMotorSpeed4);
+			rightShoot.set(-1 * shooterMotorSpeed4);
+			topShoot.set(-1 * shooterMotorSpeed4);
+			bottomShoot.set(-1 * shooterMotorSpeed4);
     	}else{
     		//set all 0
     		leftShoot.set(0);
@@ -440,6 +448,7 @@ public class Robot extends IterativeRobot {
     		//rightPickup.set(0);
     	}
     	
+    	// Gearing "back-end" from here on
     	//Gearing control
     	if(extreme3d.getTrigger() && !rightNotHeld)
     	{
@@ -470,27 +479,26 @@ public class Robot extends IterativeRobot {
     		}
     	}
     	
-    	
+    	// Logic below checks for a user holding the button
     	if(!attack3.getTrigger() && leftNotHeld){
     		leftNotHeld = false;
     	}else if(!extreme3d.getTrigger() && rightNotHeld){
     		rightNotHeld = false;
     	}
     	
+    	// Changes gear based on selection above
     	if (cGear == 1) {gearRatio = gear1;}
     	else if (cGear == 2) {gearRatio = gear2;}
     	else if (cGear == 3) {gearRatio = gear3;}
     	else {gearRatio = 0.0;}
-    	
-    	System.out.println(gearRatio);
     }
     
-    public void disabledInit()
+    // Rarely used by 1699
+    public void testPeriodic() 
     {
-    }
-    
-    public void testPeriodic() {
-    
+      	System.out.println("|------------------------------------------------------|");
+        System.out.println("| Team 1699 Robot: test mode enabled                   |");
+        System.out.println("|------------------------------------------------------|");
     }
     
 }
