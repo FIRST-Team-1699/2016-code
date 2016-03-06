@@ -4,18 +4,20 @@ What we need to finish:
 
 Finish vision code -- comms, analyze image, see things, GRIP
 
-Finish and test autonomous -- fix encoders
+Rewrite Auto to be time based
 
 Create a dashboard
 
-Keep it alive -- Its gone -- ggrip
+~~Keep it alive -- Its gone -- ggrip~~
 
-Sleep -- getting there
+~~Sleep -- getting there~~
 
-Check that all wires are secured -- remove breaker from shooter adjustment Victor
+~~Check that all wires are secured -- remove breaker from shooter adjustment Victor~~
 
-**Update all firmwares**
+~~**Update all firmwares**~~
 
-**Cover all ununsed RIO ports (duct tape or electrical?)**
+Cover all ununsed RIO ports (duct tape or electrical?)
 
-**Update driver startion**
+Update driver station
+
+***MAKE RIO WORKY WORKY***
