@@ -27,11 +27,11 @@ public class MultiCameraServer {
 		_cameraCount = camCount;
 	}
 	
-	public void run(){
+	public Image run(){
 		NIVision.IMAQdxGrab(_session, frame, 1);
-		NIVision.Rect rect = new NIVision.Rect(10, 10, 100, 100);
-        NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_OVAL, 0.0f);
-		CameraServer.getInstance().setImage(frame);
+		//NIVision.Rect rect = new NIVision.Rect(10, 10, 100, 100);
+        //NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, 0.0f);
+        return frame;
 	}
 	
 	public void setCamera(int cam){

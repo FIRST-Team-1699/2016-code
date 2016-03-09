@@ -377,7 +377,7 @@ public class Robot extends IterativeRobot {
     	 * 
     	*/
     	
-    	camera.run();
+    	CameraServer.getInstance().setImage(camera.run());
     	
     	// Gearing "application" logic
     	xSpeed1 = -1 * extreme3d.getRawAxis(1) * gearRatio;
