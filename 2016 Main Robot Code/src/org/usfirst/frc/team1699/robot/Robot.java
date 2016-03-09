@@ -498,6 +498,9 @@ public class Robot extends IterativeRobot {
     	else if (cGear == 2) {gearRatio = gear2;}
     	else if (cGear == 3) {gearRatio = gear3;}
     	else {gearRatio = 0.0;}
+    	
+    	SmartDashboard.putNumber("Current Gear: ", cGear);
+    	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
     }
     
     // Rarely used by 1699
