@@ -130,6 +130,8 @@ public class Robot extends IterativeRobot {
     final int CAM_1 = 5;
     final int CAM_2 = 6;
     
+    MultiCameraServer camera;
+    
     public void robotInit() { 
     	// Logging start
     	this.loggingInit();
@@ -194,9 +196,8 @@ public class Robot extends IterativeRobot {
         rightNotHeld = false;
         
         //Camera
-        cam = CameraServer.getInstance();
-        cam.setQuality(50);
-        cam.startAutomaticCapture("cam0");  
+        camera = new MultiCameraServer(2);
+        camera.setCamera(0);
     }
     
     // Starts logging, should be called first thing
@@ -272,6 +273,8 @@ public class Robot extends IterativeRobot {
     // Called periodically during autonomous
     public void autonomousPeriodic() 
     {
+    	camera.run();
+    	
     	// NOTE: this loop's unit is milliseconds!
     	try
     	{
@@ -374,6 +377,8 @@ public class Robot extends IterativeRobot {
     	 * 
     	*/
     	
+    	camera.run();
+    	
     	// Gearing "application" logic
     	xSpeed1 = -1 * extreme3d.getRawAxis(1) * gearRatio;
     	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
@@ -429,8 +434,10 @@ public class Robot extends IterativeRobot {
     	//Camera control
     	if(xbox.getRawButton(CAM_1)){
     		//camera 1
+    		camera.setCamera(0);
     	}else if(xbox.getRawButton(CAM_2)){
     		//camera 2
+    		camera.setCamera(1);
     	}
     	
     	//Shooter up and down
