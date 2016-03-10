@@ -1,9 +1,18 @@
 /*
-FIRST Team 1699's 2016 Robot Code
-
-v#M.#m.#s, published on <date>, used at $event_name
-*/
+ * FIRST Team 1699's 2016 Robot Code
+ * 
+ * @author thatging3rkid, FIRST Team 1699
+ * @author squirlemaster42, FIRST Team 1699 * 
+ * 
+ * v0.1.1, published on 3/9/16, used at NE North Shore Event
+ */
 package org.usfirst.frc.team1699.robot;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -14,12 +23,6 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
 
 import org.apache.commons.io.output.TeeOutputStream;
 
@@ -327,7 +330,7 @@ public class Robot extends IterativeRobot {
     			// Spins pickup motor, hence firing the shooter
     			case "shooter-fire":
     			{
-    				rightPickup.set(.6);
+    				rightPickup.set(1 * pickupSpeed);
     			}
     		
     			// Complain
@@ -389,10 +392,10 @@ public class Robot extends IterativeRobot {
     	// Ball pickup logic
     	if(attack3.getRawButton(PICK_UP) || xbox.getRawButton(XBOX_UP)){
     		//pickup
-    		rightPickup.set(.6);
+    		rightPickup.set(1 * pickupSpeed);
     	}else if (attack3.getRawButton(DROP_BALL) || xbox.getRawButton(XBOX_DOWN)){
     		//set down
-    		rightPickup.set(-.6);
+    		rightPickup.set(-1 * pickupSpeed);
     	}else{
     		//set all 0
     		rightPickup.set(0);
@@ -432,7 +435,7 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Camera control
-    	if(xbox.getRawButton(CAM_1)){
+    	if(xbox.getRawButton(CAM_1) || attack3.getRawButton(4)){
     		//camera 1
     		camera.setCamera(0);
     	}else if(xbox.getRawButton(CAM_2)){
@@ -499,6 +502,7 @@ public class Robot extends IterativeRobot {
     	else if (cGear == 3) {gearRatio = gear3;}
     	else {gearRatio = 0.0;}
     	
+    	// Prints Gearing data to Smart Dashboard
     	SmartDashboard.putNumber("Current Gear: ", cGear);
     	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
     }

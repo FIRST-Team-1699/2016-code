@@ -1,8 +1,10 @@
 /*
-FIRST Team 1699's ini Reader
-
-v1.0rc3, published 2/14/16
-*/
+ * FIRST Team 1699's ini Reader
+ * 
+ * @author thatging3tkid, FIRST Team 1699
+ * 
+ * v1.0rc3, published 2/14/16
+ */
 package org.usfirst.frc.team1699.robot;
 
 import java.io.File;
