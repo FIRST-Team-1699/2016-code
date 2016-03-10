@@ -17,6 +17,8 @@ import com.ni.vision.NIVision.DrawMode;
 import com.ni.vision.NIVision.Image;
 import com.ni.vision.NIVision.ShapeMode;
 
+import edu.wpi.first.wpilibj.CameraServer;
+
 public class MultiCameraServer {
 	
 	private int _session;
@@ -46,14 +48,14 @@ public class MultiCameraServer {
 		_cameraCount = camCount;
 	}
 	
-	public Image run(){
+	public void run(){
 		NIVision.IMAQdxGrab(_session, frame, 1);
 		// Writes crosshair boxes
 		NIVision.imaqDrawShapeOnImage(frame, frame, topRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
 		NIVision.imaqDrawShapeOnImage(frame, frame, rightRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
 		NIVision.imaqDrawShapeOnImage(frame, frame, botRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
 		NIVision.imaqDrawShapeOnImage(frame, frame, leftRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
-        return frame;
+		CameraServer.getInstance().setImage(frame);
 	}
 	
 	public void setCamera(int cam){

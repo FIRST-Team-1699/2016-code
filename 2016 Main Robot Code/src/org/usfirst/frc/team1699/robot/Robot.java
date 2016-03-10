@@ -201,6 +201,7 @@ public class Robot extends IterativeRobot {
         //Camera
         camera = new MultiCameraServer(2);
         camera.setCamera(0);
+        camera.run();
     }
     
     // Starts logging, should be called first thing
@@ -380,8 +381,6 @@ public class Robot extends IterativeRobot {
     	 * 
     	*/
     	
-    	CameraServer.getInstance().setImage(camera.run());
-    	
     	// Gearing "application" logic
     	xSpeed1 = -1 * extreme3d.getRawAxis(1) * gearRatio;
     	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
@@ -505,6 +504,9 @@ public class Robot extends IterativeRobot {
     	// Prints Gearing data to Smart Dashboard
     	SmartDashboard.putNumber("Current Gear: ", cGear);
     	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
+    	
+    	// Update camera?
+    	camera.run();
     }
     
     // Rarely used by 1699
