@@ -38,9 +38,9 @@ public class MultiCameraServer {
 	
 	// Makes the boxes for a crosshair
 	// NIVision.Rect(int top, int left, int height, int width) 
-	NIVision.Rect topRect = new NIVision.Rect((xCenter - chairGap - chairLength), (int) (yCenter - (chairSize * .5)), chairLength, chairGap);
+	NIVision.Rect topRect = new NIVision.Rect((int) (xCenter - chairGap - .5 * chairLength), (int) (yCenter - (chairSize * .5)), chairLength, chairGap);
 	NIVision.Rect rightRect = new NIVision.Rect((int) (xCenter + (chairSize * .5)), (yCenter - chairGap - chairLength), chairGap, chairLength);
-	NIVision.Rect botRect = new NIVision.Rect((xCenter + chairGap), (int) (yCenter - (chairSize * .5)), chairLength, chairGap);
+	NIVision.Rect botRect = new NIVision.Rect((xCenter + 2 * chairGap), (int) (yCenter - (chairSize * .5)), chairLength, chairGap);
 	NIVision.Rect leftRect = new NIVision.Rect((int) (xCenter + (chairSize * .5)), (yCenter + chairGap), chairGap, chairLength);
 	
 	public MultiCameraServer(int camCount){
@@ -51,10 +51,10 @@ public class MultiCameraServer {
 	public void run(){
 		NIVision.IMAQdxGrab(_session, frame, 1);
 		// Writes crosshair boxes
-		NIVision.imaqDrawShapeOnImage(frame, frame, topRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
-		NIVision.imaqDrawShapeOnImage(frame, frame, rightRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
-		NIVision.imaqDrawShapeOnImage(frame, frame, botRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
-		NIVision.imaqDrawShapeOnImage(frame, frame, leftRect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, chairColor);
+		NIVision.imaqDrawShapeOnImage(frame, frame, topRect, DrawMode.PAINT_VALUE, ShapeMode.SHAPE_RECT, 0.0f);
+		NIVision.imaqDrawShapeOnImage(frame, frame, rightRect, DrawMode.PAINT_VALUE, ShapeMode.SHAPE_RECT, 1.0f);
+		NIVision.imaqDrawShapeOnImage(frame, frame, botRect, DrawMode.PAINT_VALUE, ShapeMode.SHAPE_RECT, 2.0f);
+		NIVision.imaqDrawShapeOnImage(frame, frame, leftRect, DrawMode.PAINT_VALUE, ShapeMode.SHAPE_RECT, 0.0f);
 		CameraServer.getInstance().setImage(frame);
 	}
 	

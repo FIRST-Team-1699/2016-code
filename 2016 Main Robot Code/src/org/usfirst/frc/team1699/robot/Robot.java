@@ -133,6 +133,7 @@ public class Robot extends IterativeRobot {
     final int CAM_1 = 5;
     final int CAM_2 = 6;
     
+    
     MultiCameraServer camera;
     
     public void robotInit() { 
@@ -180,7 +181,7 @@ public class Robot extends IterativeRobot {
         leftShoot = new VictorSP(1);
         topShoot = new VictorSP(2);
         bottomShoot = new VictorSP(3);
-        rightShoot = new VictorSP(4);
+        rightShoot = new VictorSP(9);
         
         //Ball pickup
         rightPickup = new VictorSP(6);
@@ -264,22 +265,109 @@ public class Robot extends IterativeRobot {
     	System.out.println("|------------------------------------------------------|");
     }    
     
+    public void disabledPeriodic(){
+    	camera.run();
+    }
+    
     // Runs before autonomous
     public void autonomousInit() {
     	autoSelected = (String) chooser.getSelected();
 		System.out.println("Auto selected: " + autoSelected);
 		iter = 0;
-    	autoCommands = new iniReader(autoSelected + ".ini");
-    	commands = autoCommands.getFile();
-    	autoCount1 = 0;
+    	//autoCommands = new iniReader(autoSelected + ".ini");
+    	//commands = autoCommands.getFile();
+    	//autoCount1 = 0;
+		i = 0;
+		speed = 0;
     }
 
+    double speed = 0;
+    double i = 0;
     // Called periodically during autonomous
     public void autonomousPeriodic() 
     {
     	camera.run();
     	
-    	// NOTE: this loop's unit is milliseconds!
+//    	if(speed < 0.9){
+//			speed += .04;
+//		}
+//		
+//		if(i < 40){
+//			rDrive.arcadeDrive(speed, 0);
+//		} else{
+//			rDrive.arcadeDrive(0, 0);
+//		}
+//		
+//		try {
+//			Thread.sleep(1);
+//		} catch (InterruptedException e) { 
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		i++;
+    	//System.out.println(autoSelected);
+    	
+//    	switch ((String) autoSelected)
+//    	{
+//    	case "1699-auto1":
+//    	{
+//    		if(speed < 1.0){
+//    			speed += .04;
+//    		}
+//    		
+//    		if(i < 75){
+//    			rDrive.arcadeDrive(speed, 0);
+//    		} else{
+//    			rDrive.arcadeDrive(0, 0);
+//    		}
+//    		
+//    		try {
+//    			Thread.sleep(1);
+//    		} catch (InterruptedException e) { 
+//    			// TODO Auto-generated catch block
+//    			e.printStackTrace();
+//    		}
+//    		
+//    		i++;
+//    	}
+//    	case "1699-auto2":
+//    	{
+//    		if(speed < 1.0){
+//    			speed += .04;
+//    		}
+//    		
+//    		if(i < 50){
+//    			rDrive.arcadeDrive(speed, 0);
+//    		}else if (i < 60){
+//    			rDrive.tankDrive(speed, 0);
+//    		}else{
+//    			rDrive.arcadeDrive(0, 0);
+//    		}
+//    		
+//    		try {
+//    			Thread.sleep(1);
+//    		} catch (InterruptedException e) { 
+//    			// TODO Auto-generated catch block
+//    			e.printStackTrace();
+//    		}
+//    		
+//    		i++;
+//    	}
+//    	case "1699-auto3":
+//    	{
+//    		rDrive.arcadeDrive(0, 0);
+//    	}
+//    	case "1699-auto4":
+//    	{
+//    		rDrive.arcadeDrive(1,0);
+//    	}
+//    	default:{
+//    		rDrive.arcadeDrive(0, 0);
+//    	}
+//    	}
+    	
+    	/*// NOTE: this loop's unit is milliseconds!
     	try
     	{
     		cCommand = ((ArrayList) commands.get(autoCount1));
@@ -360,7 +448,9 @@ public class Robot extends IterativeRobot {
     		try {Thread.sleep((long) ((15000 - iter) - 5));}
     		catch (InterruptedException e1) {e1.printStackTrace();}
     	}
-    }
+    	*/
+    	}
+    
     
     public void teleopPeriodic() {
     	/*
@@ -389,7 +479,7 @@ public class Robot extends IterativeRobot {
     	rDrive.tankDrive(xSpeed2, xSpeed1);
     	
     	// Ball pickup logic
-    	if(attack3.getRawButton(PICK_UP) || xbox.getRawButton(XBOX_UP)){
+    	if((attack3.getRawButton(PICK_UP) || xbox.getRawButton(XBOX_UP))){
     		//pickup
     		rightPickup.set(1 * pickupSpeed);
     	}else if (attack3.getRawButton(DROP_BALL) || xbox.getRawButton(XBOX_DOWN)){
@@ -414,11 +504,11 @@ public class Robot extends IterativeRobot {
 			topShoot.set(-1 * shooterMotorSpeed2);
 			bottomShoot.set(-1 * shooterMotorSpeed2);
     	}else if(xbox.getRawButton(A_BUTTON)){
-    		//shooter speed 3
+			//shooter speed 3
     		leftShoot.set(1 * shooterMotorSpeed3);
-			rightShoot.set(-1 * shooterMotorSpeed3);
-			topShoot.set(-1 * shooterMotorSpeed3);
-			bottomShoot.set(-1 * shooterMotorSpeed3);
+   			rightShoot.set(-1 * shooterMotorSpeed3);
+    		topShoot.set(-1 * shooterMotorSpeed3);
+    		bottomShoot.set(-1 * shooterMotorSpeed3);
     	}else if(xbox.getRawButton(B_BUTTON)){
     		//shooter speed 4
     		leftShoot.set(1 * shooterMotorSpeed4);
@@ -430,7 +520,7 @@ public class Robot extends IterativeRobot {
     		leftShoot.set(0);
     		rightShoot.set(0);
     		topShoot.set(0);
-    		bottomShoot.set(0); 
+    		bottomShoot.set(0);
     	}
     	
     	//Camera control
@@ -518,3 +608,4 @@ public class Robot extends IterativeRobot {
     }
     
 }
+
