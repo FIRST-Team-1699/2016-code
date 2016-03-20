@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -103,6 +104,7 @@ public class Robot extends IterativeRobot {
     double shooterMotorSpeed2;
     double shooterMotorSpeed3;
     double shooterMotorSpeed4;
+    double imageCenter;
     
     // Autonomous variables
     double iter;
@@ -136,7 +138,14 @@ public class Robot extends IterativeRobot {
     
     MultiCameraServer camera;
     
+    //Vision
+    NetworkTable table;
+	double[] centerX;
+    
     public void robotInit() { 
+    	//Vision
+    	table = NetworkTable.getTable("GRIP/myContoursReport");
+    	
     	// Logging start
     	this.loggingInit();
     	
@@ -151,7 +160,8 @@ public class Robot extends IterativeRobot {
         shooterMotorSpeed2 = teleopIni.getValue("shooterMotorSpeed2");
         shooterMotorSpeed3 = teleopIni.getValue("shooterMotorSpeed3");
         shooterMotorSpeed4 = teleopIni.getValue("shooterMotorSpeed4");
-    	
+    	imageCenter = teleopIni.getValue("imageCenter");
+        
     	// Autonomous chooser
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
@@ -599,13 +609,37 @@ public class Robot extends IterativeRobot {
     	camera.run();
     }
     
+    // Team methods
+    //
+    
+    // line up shooter, send value to Dashboard
+    public void lineUp(){
+		double[] defaultValue = new double[0];
+		centerX = table.getNumberArray("centerX", defaultValue);
+		if((centerX[0] + 2 > imageCenter) && (centerX[0] - 2 < imageCenter))
+		{
+			SmartDashboard.putString("Shot Ready", "true");
+		}
+		else{
+			SmartDashboard.putString("Shot Ready", "false");
+			if(centerX[0] > imageCenter){
+				//Turn left
+				rDrive.tankDrive(0.3, -0.3);
+			}else if(centerX[0] < imageCenter){
+				//Turn right
+				rDrive.tankDrive(-0.3, 0.3);
+			}else{
+			//Take shot
+			}
+		}
+	}
+    
     // Rarely used by 1699
     public void testPeriodic() 
     {
       	System.out.println("|------------------------------------------------------|");
         System.out.println("| Team 1699 Robot: test mode enabled                   |");
         System.out.println("|------------------------------------------------------|");
-    }
-    
+    }    
 }
 
