@@ -136,13 +136,17 @@ public class Robot extends IterativeRobot {
     final int CAM_2 = 6;
     
     
-    MultiCameraServer camera;
+   //Camera
+    CameraServer server;
     
     //Vision
     NetworkTable table;
 	double[] centerX;
     
     public void robotInit() { 
+    	//Dashboard
+    	SmartDashboard.putString("Shot Ready", "false");
+    	
     	//Vision
     	table = NetworkTable.getTable("GRIP/myContoursReport");
     	
@@ -210,9 +214,10 @@ public class Robot extends IterativeRobot {
         rightNotHeld = false;
         
         //Camera
-        camera = new MultiCameraServer(2);
-        camera.setCamera(0);
-        camera.run();
+        server = CameraServer.getInstance();
+        server.setQuality(50);
+        //the camera name (ex "cam0") can be found through the roborio web interface
+        server.startAutomaticCapture("cam0");
     }
     
     // Starts logging, should be called first thing
@@ -276,7 +281,7 @@ public class Robot extends IterativeRobot {
     }    
     
     public void disabledPeriodic(){
-    	camera.run();
+    	//camera.run();
     }
     
     // Runs before autonomous
@@ -296,26 +301,50 @@ public class Robot extends IterativeRobot {
     // Called periodically during autonomous
     public void autonomousPeriodic() 
     {
-    	camera.run();
+    	//camera.run();
     	
-//    	if(speed < 0.9){
-//			speed += .04;
-//		}
-//		
-//		if(i < 40){
-//			rDrive.arcadeDrive(speed, 0);
-//		} else{
-//			rDrive.arcadeDrive(0, 0);
-//		}
-//		
-//		try {
-//			Thread.sleep(1);
-//		} catch (InterruptedException e) { 
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		i++;
+    	if(speed < 0.9){
+			speed += .04;
+		}
+		
+		if(i < 40){
+			rDrive.arcadeDrive(speed, 0);
+		} else{
+			rDrive.arcadeDrive(0, 0);
+		}
+		
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) { 
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(i > 40 && i < 50){
+			lineUp();
+		}
+		
+		if(SmartDashboard.getString("Shot Ready").equals("true")){
+			int j = 0;
+			if(j < 20){
+				leftShoot.set(1 * shooterMotorSpeed3);
+				rightShoot.set(-1 * shooterMotorSpeed3);
+				topShoot.set(-1 * shooterMotorSpeed3);
+				bottomShoot.set(-1 * shooterMotorSpeed3);
+			}else if(j < 30){
+				rightPickup.set(1 * pickupSpeed);
+			}else{
+				leftShoot.set(0);
+				rightShoot.set(0);
+				topShoot.set(0);
+				bottomShoot.set(0);
+				rightPickup.set(0);
+			}
+			j++;
+			
+		}
+		
+		i++;
     	//System.out.println(autoSelected);
     	
 //    	switch ((String) autoSelected)
@@ -500,6 +529,10 @@ public class Robot extends IterativeRobot {
     		rightPickup.set(0);
     	}
     	
+    	if(attack3.getRawButton(7)){
+    		lineUp();
+    	}
+    	
     	//Shoot with different speeds
     	if(xbox.getRawButton(X_BUTTON)){
     		//shooter speed 1
@@ -536,10 +569,10 @@ public class Robot extends IterativeRobot {
     	//Camera control
     	if(xbox.getRawButton(CAM_1) || attack3.getRawButton(4)){
     		//camera 1
-    		camera.setCamera(0);
+    		//camera.setCamera(0);
     	}else if(xbox.getRawButton(CAM_2)){
     		//camera 2
-    		camera.setCamera(1);
+    		//camera.setCamera(1);
     	}
     	
     	//Shooter up and down
@@ -606,7 +639,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
     	
     	// Update camera?
-    	camera.run();
+    	//camera.run();
     }
     
     // Team methods
@@ -614,24 +647,32 @@ public class Robot extends IterativeRobot {
     
     // line up shooter, send value to Dashboard
     public void lineUp(){
-		double[] defaultValue = new double[0];
-		centerX = table.getNumberArray("centerX", defaultValue);
-		if((centerX[0] + 2 > imageCenter) && (centerX[0] - 2 < imageCenter))
-		{
-			SmartDashboard.putString("Shot Ready", "true");
-		}
-		else{
-			SmartDashboard.putString("Shot Ready", "false");
-			if(centerX[0] > imageCenter){
-				//Turn left
-				rDrive.tankDrive(0.3, -0.3);
-			}else if(centerX[0] < imageCenter){
-				//Turn right
-				rDrive.tankDrive(-0.3, 0.3);
-			}else{
-			//Take shot
-			}
-		}
+    	try{
+    		double[] defaultValue = new double[0];
+    		centerX = table.getNumberArray("centerX", defaultValue);
+    		if((centerX[0] + 5 > imageCenter) && (centerX[0] - 5 < imageCenter))
+    		{
+    			SmartDashboard.putString("Shot Ready", "true");
+    		}
+    		else{
+    			SmartDashboard.putString("Shot Ready", "false");
+    			if(centerX[0] > imageCenter){
+    				//Turn left
+    				rDrive.tankDrive(0.3, -0.8);
+    			}else if(centerX[0] < imageCenter){
+    				//Turn right
+    				rDrive.tankDrive(-0.8, 0.3);
+    			}else{
+    				//Take shot
+    			}
+    			Thread.sleep(250);
+    		}
+    		
+    	}catch(ArrayIndexOutOfBoundsException ex){
+    		System.out.println("Goal not found");
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
 	}
     
     // Rarely used by 1699
