@@ -115,6 +115,12 @@ public class Robot extends IterativeRobot {
     @SuppressWarnings("rawtypes")
 	ArrayList cCommand;    
     
+    // Line up shot method
+    int iterJ;
+    
+    // Shoot method 
+    int iterA;
+    
     // Joystick bindings
     // ALL should be finals
     //Shooter
@@ -135,6 +141,8 @@ public class Robot extends IterativeRobot {
     final int CAM_1 = 5;
     final int CAM_2 = 6;
     
+    // Line up shot
+    final int LINE_UP = 2;    
     
    //Camera
     CameraServer server;
@@ -168,7 +176,6 @@ public class Robot extends IterativeRobot {
         
     	// Autonomous chooser
         chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("Autonomous 1", auto1S);
         chooser.addObject("Autonomous 2", auto2S);
         chooser.addObject("Autonomous 3", auto3S);
@@ -218,6 +225,9 @@ public class Robot extends IterativeRobot {
         server.setQuality(50);
         //the camera name (ex "cam0") can be found through the roborio web interface
         server.startAutomaticCapture("cam0");
+        
+        // Line up method
+        iterJ = 0;
     }
     
     // Starts logging, should be called first thing
@@ -303,191 +313,108 @@ public class Robot extends IterativeRobot {
     {
     	//camera.run();
     	
-    	if(speed < 0.9){
-			speed += .04;
-		}
-		
-		if(i < 40){
-			rDrive.arcadeDrive(speed, 0);
-		} else{
-			rDrive.arcadeDrive(0, 0);
-		}
-		
-		try {
-			Thread.sleep(1);
-		} catch (InterruptedException e) { 
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if(i > 40 && i < 50){
-			lineUp();
-		}
-		
-		if(SmartDashboard.getString("Shot Ready").equals("true")){
-			int j = 0;
-			if(j < 20){
-				leftShoot.set(1 * shooterMotorSpeed3);
-				rightShoot.set(-1 * shooterMotorSpeed3);
-				topShoot.set(-1 * shooterMotorSpeed3);
-				bottomShoot.set(-1 * shooterMotorSpeed3);
-			}else if(j < 30){
-				rightPickup.set(1 * pickupSpeed);
-			}else{
-				leftShoot.set(0);
-				rightShoot.set(0);
-				topShoot.set(0);
-				bottomShoot.set(0);
-				rightPickup.set(0);
-			}
-			j++;
-			
-		}
-		
-		i++;
-    	//System.out.println(autoSelected);
+    	System.out.println(autoSelected);
     	
-//    	switch ((String) autoSelected)
-//    	{
-//    	case "1699-auto1":
-//    	{
-//    		if(speed < 1.0){
-//    			speed += .04;
-//    		}
-//    		
-//    		if(i < 75){
-//    			rDrive.arcadeDrive(speed, 0);
-//    		} else{
-//    			rDrive.arcadeDrive(0, 0);
-//    		}
-//    		
-//    		try {
-//    			Thread.sleep(1);
-//    		} catch (InterruptedException e) { 
-//    			// TODO Auto-generated catch block
-//    			e.printStackTrace();
-//    		}
-//    		
-//    		i++;
-//    	}
-//    	case "1699-auto2":
-//    	{
-//    		if(speed < 1.0){
-//    			speed += .04;
-//    		}
-//    		
-//    		if(i < 50){
-//    			rDrive.arcadeDrive(speed, 0);
-//    		}else if (i < 60){
-//    			rDrive.tankDrive(speed, 0);
-//    		}else{
-//    			rDrive.arcadeDrive(0, 0);
-//    		}
-//    		
-//    		try {
-//    			Thread.sleep(1);
-//    		} catch (InterruptedException e) { 
-//    			// TODO Auto-generated catch block
-//    			e.printStackTrace();
-//    		}
-//    		
-//    		i++;
-//    	}
-//    	case "1699-auto3":
-//    	{
-//    		rDrive.arcadeDrive(0, 0);
-//    	}
-//    	case "1699-auto4":
-//    	{
-//    		rDrive.arcadeDrive(1,0);
-//    	}
-//    	default:{
-//    		rDrive.arcadeDrive(0, 0);
-//    	}
-//    	}
-    	
-    	/*// NOTE: this loop's unit is milliseconds!
-    	try
+    	switch ((String) autoSelected)
     	{
-    		cCommand = ((ArrayList) commands.get(autoCount1));
-    
-    		switch (((String) cCommand.get(0)).toLowerCase()){
+    	case "1699-auto1":
+    	{
+    		if(speed < 0.8){
+    			speed += .04;
+    		}
     		
-    			// Sets drive motors to speed
-    			case "drive":
-    			{
-    				rDrive.arcadeDrive(autoSpeed, 0);
-    			}
+    		if(i < 82){
+    			rDrive.arcadeDrive(speed, 0);
+    		} else{
+    			rDrive.arcadeDrive(0, 0);
+    		}
     		
-    			// Sets one side of drive motors to speed (to try and turn)
-    			case "rotate":
-    			{
-    				// Check if positive
-    				if ((double) cCommand.get(1) > 0)
-    				{
-    					rDrive.tankDrive(autoSpeed, 0);
-    				}
-    			
-    				// Check if negative
-    				if ((double) cCommand.get(1) < 0)
-    				{
-    					rDrive.tankDrive(0, autoSpeed);
-    				}	
-    			}
+    		try {
+    			Thread.sleep(1);
+    		} catch (InterruptedException e) { 
+    			e.printStackTrace();
+    		}
     		
-    			// Stops all robot functions
-    			case "sleep":
-    			{
-    				rDrive.arcadeDrive(0, 0);
-    				rightPickup.set(0);
+    		i++;
+    	}
+    	case "1699-auto2":
+    	{
+    		if(speed < .8){
+    			speed += .04;
+    		}
+    		
+    		if(i < 50){
+    			rDrive.arcadeDrive(speed, 0);
+    		}else if (i < 58){
+    			rDrive.tankDrive(.3, .8);
+    		}else if (i < 65){
+    			this.lineUp();
+    		}else if (i < 66){
+				this.shootBall(3);
+			}else {
+    			rDrive.arcadeDrive(0, 0);
+    		}
+    		
+    		try {
+    			Thread.sleep(1);
+    		} catch (InterruptedException e) { 
+    			e.printStackTrace();
+    		}
+    		
+    		i++;
+    	}
+    	case "1699-auto3":
+    	{
+    		if(speed < 0.9){
+    			speed += .04;
+    		}
+    		
+    		if(i < 40){
+    			rDrive.arcadeDrive(speed, 0);
+    		} else{
+    			rDrive.arcadeDrive(0, 0);
+    		}
+    		
+    		try {
+    			Thread.sleep(1);
+    		} catch (InterruptedException e) { 
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		
+    		if(i > 40 && i < 50){
+    			lineUp();
+    		}
+    		
+    		if(SmartDashboard.getString("Shot Ready").equals("true")){
+    			int j = 0;
+    			if(j < 20){
+    				leftShoot.set(1 * shooterMotorSpeed3);
+    				rightShoot.set(-1 * shooterMotorSpeed3);
+    				topShoot.set(-1 * shooterMotorSpeed3);
+    				bottomShoot.set(-1 * shooterMotorSpeed3);
+    			}else if(j < 30){
+    				rightPickup.set(1 * pickupSpeed);
+    			}else{
     				leftShoot.set(0);
     				rightShoot.set(0);
     				topShoot.set(0);
     				bottomShoot.set(0);
+    				rightPickup.set(0);
     			}
-    		
-    			// Spins up shooter motors at value defined in ini
-    			case "shooter-spinup":
-    			{
-    				leftShoot.set(1 * shooterMotorSpeed2);
-    				rightShoot.set(-1 * shooterMotorSpeed2);
-    				topShoot.set(-1 * shooterMotorSpeed2);
-    				bottomShoot.set(-1 * shooterMotorSpeed2);
-    			}
-    		
-    			// Spins pickup motor, hence firing the shooter
-    			case "shooter-fire":
-    			{
-    				rightPickup.set(1 * pickupSpeed);
-    			}
-    		
-    			// Complain
-    			default:
-    			{
-    				System.out.println("Command not recognized at line: " + autoCount1 + " in file: " + autoSelected + ".ini");
-    			}
-    	
+    			j++;
+    			
     		}
-    		if (iter > ((double) cCommand.get(1)))
-    		{
-    			autoCount1 += 1;
-    			iter = 0;
-    		}
-    		
-    		// Iterate and sleep for a millisecond
-    		iter += 1;    		
-    		try {Thread.sleep(1);}
-    		catch (InterruptedException e) {e.printStackTrace();}
+    		i++;
     	}
-    	// For when the file runs out of commands
-    	catch (IndexOutOfBoundsException e)
+    	case "1699-auto4":
     	{
-    		System.out.println("Ran out of commands :/");
-    		e.printStackTrace();
-    		try {Thread.sleep((long) ((15000 - iter) - 5));}
-    		catch (InterruptedException e1) {e1.printStackTrace();}
+    		rDrive.arcadeDrive(1,0);
     	}
-    	*/
+    	default:{
+    		rDrive.arcadeDrive(0, 0);
+    	}
+    	}
     	}
     
     
@@ -511,11 +438,22 @@ public class Robot extends IterativeRobot {
     	*/
     	
     	// Gearing "application" logic
-    	xSpeed1 = -1 * extreme3d.getRawAxis(1) * gearRatio;
-    	xSpeed2 = -1 * attack3.getRawAxis(1) * gearRatio;
+    	xSpeed2 = -1 * extreme3d.getRawAxis(1) * gearRatio;
+    	xSpeed1 = -1 * attack3.getRawAxis(1) * gearRatio;
     	
-    	// Actually SPIN the drive motors
-    	rDrive.tankDrive(xSpeed2, xSpeed1);
+    	// Change drive system
+    	if (extreme3d.getRawButton(LINE_UP))
+    	{
+    		this.lineUp();
+    	}
+    	else if (xSpeed1 == 3.1415) // never true
+    	{
+    		// space for another condition
+    	}
+    	else
+    	{
+    		rDrive.tankDrive(xSpeed1, xSpeed2);
+    	}
     	
     	// Ball pickup logic
     	if((attack3.getRawButton(PICK_UP) || xbox.getRawButton(XBOX_UP))){
@@ -527,10 +465,6 @@ public class Robot extends IterativeRobot {
     	}else{
     		//set all 0
     		rightPickup.set(0);
-    	}
-    	
-    	if(attack3.getRawButton(7)){
-    		lineUp();
     	}
     	
     	//Shoot with different speeds
@@ -655,25 +589,82 @@ public class Robot extends IterativeRobot {
     			SmartDashboard.putString("Shot Ready", "true");
     		}
     		else{
+    			iterJ += 1;
     			SmartDashboard.putString("Shot Ready", "false");
     			if(centerX[0] > imageCenter){
     				//Turn left
-    				rDrive.tankDrive(0.3, -0.8);
+    				if ((iterJ % 2) == 0) {rDrive.tankDrive(0.3, -0.8);} // Turn left-back
+    				if ((iterJ % 2) == 1) {rDrive.tankDrive(0.8, -0.3);} // Turn left-forward
     			}else if(centerX[0] < imageCenter){
     				//Turn right
-    				rDrive.tankDrive(-0.8, 0.3);
+    				if ((iterJ % 2) == 0) {rDrive.tankDrive(-0.8, 0.3);} // Turn right-back
+    				if ((iterJ % 2) == 1) {rDrive.tankDrive(-0.3, 0.8);} // Turn left-forward
     			}else{
     				//Take shot
     			}
-    			Thread.sleep(250);
+    			Thread.sleep(50);
     		}
     		
     	}catch(ArrayIndexOutOfBoundsException ex){
-    		System.out.println("Goal not found");
+    		System.out.println("Goal not found.");
     	}catch(Exception e){
     		e.printStackTrace();
     	}
 	}
+    
+    public void shootBall(int setting)
+    {
+   		try {
+   			// sleep check
+   		
+   			Thread.sleep(1);
+   		
+   			// Set motor speed
+   			if (setting == 1)
+   			{
+   				leftShoot.set(1 * shooterMotorSpeed1);
+   				rightShoot.set(-1 * shooterMotorSpeed1);
+   				topShoot.set(-1 * shooterMotorSpeed1);
+   				bottomShoot.set(-1 * shooterMotorSpeed1);
+   			}
+   			if (setting == 2)
+   			{
+   				leftShoot.set(1 * shooterMotorSpeed2);
+   				rightShoot.set(-1 * shooterMotorSpeed2);
+   				topShoot.set(-1 * shooterMotorSpeed2);
+   				bottomShoot.set(-1 * shooterMotorSpeed2);
+   			}
+   			if (setting == 3)
+   			{
+   				leftShoot.set(1 * shooterMotorSpeed3);
+   				rightShoot.set(-1 * shooterMotorSpeed3);
+   				topShoot.set(-1 * shooterMotorSpeed3);
+   				bottomShoot.set(-1 * shooterMotorSpeed3);
+   			}
+   			if (setting == 4)
+   			{
+   				leftShoot.set(1 * shooterMotorSpeed4);
+   				rightShoot.set(-1 * shooterMotorSpeed4);
+   				topShoot.set(-1 * shooterMotorSpeed4);
+   				bottomShoot.set(-1 * shooterMotorSpeed4);
+   			}
+
+   			// Let motors spin up
+   			Thread.sleep(1250);
+
+   			// Send ball towards its final destiny
+   			rightPickup.set(1 * pickupSpeed);
+
+   			// Stop all motors
+   			Thread.sleep(500);
+   			leftShoot.set(0);
+   			rightShoot.set(0);
+   			topShoot.set(0);
+   			bottomShoot.set(0);
+   			rightPickup.set(0);
+   		}
+   		catch (InterruptedException e) {e.printStackTrace();}
+    }
     
     // Rarely used by 1699
     public void testPeriodic() 
