@@ -2,9 +2,9 @@ What we need to finish:
 
 ~~Finish code for lead screw -- Maybe~~ 
 
-Finish vision code -- comms, analyze image, see things, GRIP
+~~Finish vision code -- comms, analyze image, see things, GRIP~~
 
-Rewrite Auto to be time based
+~~Rewrite Auto to be time based~~
 
 Create a dashboard
 
@@ -18,6 +18,11 @@ Create a dashboard
 
 Cover all ununsed RIO ports (duct tape or electrical?)
 
-Update driver station
+~~Update driver station~~
 
-***MAKE RIO WORKY WORKY***
+~~***MAKE RIO WORKY WORKY***~~
+
+look at lighter switch (http://www.amazon.com/D-Link-5-Port-Unmanaged-Gigabit-Switch/dp/B008PC1FYK/ref=sr_1_10?ie=UTF8&qid=1459980789&sr=8-10)
+
+Win Innovation in Controls Award ✔️
+
