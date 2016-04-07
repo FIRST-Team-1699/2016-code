@@ -26,3 +26,5 @@ look at lighter switch (http://www.amazon.com/D-Link-5-Port-Unmanaged-Gigabit-Sw
 
 Win Innovation in Controls Award ✔️
 
+Reinstall GRIP all the time because kappa :{
+
