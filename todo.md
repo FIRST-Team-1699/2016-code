@@ -28,3 +28,18 @@ Win Innovation in Controls Award ✔️
 
 Reinstall GRIP all the time because kappa :{
 
+Go to district championship ✔
+
+**What to do for DC:**
+
+Continute work on lineUp algorithm
+
+Make a selectable auto (select defense, select turn, select line up and shoot)
+
+Clean up code a little?
+
+Fix dashboard
+
+Remeber to tell the judges that we have a GitHub page with all our code (and some resources)
+
+Get retroflective tape for a proper pre-match GRIP test 
