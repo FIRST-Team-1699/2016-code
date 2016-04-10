@@ -1,6 +1,6 @@
-What we need to finish:
+**What we need to finish:**
 
-~~Finish code for lead screw -- Maybe~~ 
+~~Finish code for lead screw -- Maybe -- no~~ 
 
 ~~Finish vision code -- comms, analyze image, see things, GRIP~~
 
