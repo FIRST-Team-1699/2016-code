@@ -43,3 +43,5 @@ Fix dashboard
 Remeber to tell the judges that we have a GitHub page with all our code (and some resources)
 
 Get retroflective tape for a proper pre-match GRIP test 
+
+Ask Mr. D for compressed air cans
