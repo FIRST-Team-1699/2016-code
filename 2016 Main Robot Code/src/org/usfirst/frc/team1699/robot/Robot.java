@@ -4,7 +4,7 @@
  * @author thatging3rkid, FIRST Team 1699
  * @author squirlemaster42, FIRST Team 1699 * 
  * 
- * v0.1.1, published on 3/9/16, used at NE North Shore Event
+ * v0.1.1, published on 3/9/16, used at NE Hartford Event
  */
 package org.usfirst.frc.team1699.robot;
 
