@@ -24,7 +24,7 @@ Cover all ununsed RIO ports (duct tape or electrical?)
 
 look at lighter switch (http://www.amazon.com/D-Link-5-Port-Unmanaged-Gigabit-Switch/dp/B008PC1FYK/ref=sr_1_10?ie=UTF8&qid=1459980789&sr=8-10)
 
-Win Innovation in Controls Award ✔️
+Win Innovation in Controls Award ✔
 
 Reinstall GRIP all the time because kappa :{
 
@@ -45,3 +45,5 @@ Remeber to tell the judges that we have a GitHub page with all our code (and som
 Get retroflective tape for a proper pre-match GRIP test 
 
 Ask Mr. D for compressed air cans
+
+See if logging actually works
