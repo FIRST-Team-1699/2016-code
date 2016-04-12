@@ -76,6 +76,9 @@ public class Robot extends IterativeRobot {
     //VictorSP leftPickup;
     VictorSP rightPickup;
     
+    //Pickup
+    VictorSP climber;
+    
     // Initialize ini file
     iniReader teleopIni;
     
@@ -150,16 +153,23 @@ public class Robot extends IterativeRobot {
     //Vision
     NetworkTable table;
 	double[] centerX;
+	double[] xCenter;
+	
+	//Auto
+	boolean autoOff = false;
     
     public void robotInit() { 
-    	//Dashboard
-    	SmartDashboard.putString("Shot Ready", "false");
+    	// Logging start
+    	this.loggingInit();
     	
     	//Vision
     	table = NetworkTable.getTable("GRIP/myContoursReport");
     	
-    	// Logging start
-    	this.loggingInit();
+    	//Dashboard
+    	SmartDashboard.putString("Shot Ready", "false");
+    	double[] gripVals = new double[0];
+		xCenter = table.getNumberArray("centerX", gripVals);
+		SmartDashboard.putString("CenterX", xCenter.toString()); 	
     	
     	// iniReader
     	teleopIni = new iniReader("1699-config.ini");
@@ -206,6 +216,9 @@ public class Robot extends IterativeRobot {
         
         //Ball pickup
         rightPickup = new VictorSP(6);
+        
+        //Climber
+        climber = new VictorSP(8);
         
         //Drive
         rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
@@ -315,7 +328,43 @@ public class Robot extends IterativeRobot {
     	
     	System.out.println(autoSelected);
     	
-    	switch ((String) autoSelected)
+    	if(!autoOff){
+    		if((speed < 0.85) && !(i >= 120)){
+				speed += .04;
+			}
+		
+			if(i < 110){
+				rDrive.arcadeDrive(speed, 0);
+			}
+		
+			if(i >= 120 && i <= 120){
+				if(speed > 0){
+					speed -= .02;
+				}
+				rDrive.arcadeDrive(speed, 0);
+			}
+			
+			
+//			if(SmartDashboard.getString("Shot Ready").equals("true")){
+//				shootBall(3);
+//			}else{
+//				lineUp();
+//			}
+			
+			
+		
+			System.out.println(speed);
+		
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) { 
+				e.printStackTrace();
+			}
+		
+			i++;
+    	}
+    	
+    	/*switch ((String) autoSelected)
     	{
     	case "1699-auto1":
     	{
@@ -378,7 +427,6 @@ public class Robot extends IterativeRobot {
     		try {
     			Thread.sleep(1);
     		} catch (InterruptedException e) { 
-    			// TODO Auto-generated catch block
     			e.printStackTrace();
     		}
     		
@@ -414,7 +462,7 @@ public class Robot extends IterativeRobot {
     	default:{
     		rDrive.arcadeDrive(0, 0);
     	}
-    	}
+    	}*/
     	}
     
     
@@ -436,6 +484,11 @@ public class Robot extends IterativeRobot {
     	 *   button 5/6: camera switch
     	 * 
     	*/
+    	
+    	//Grip stuff
+    	double[] gripVals = new double[0];
+		xCenter = table.getNumberArray("centerX", gripVals);
+		SmartDashboard.putString("CenterX", xCenter.toString());
     	
     	// Gearing "application" logic
     	xSpeed2 = -1 * extreme3d.getRawAxis(1) * gearRatio;
@@ -504,9 +557,14 @@ public class Robot extends IterativeRobot {
     	if(xbox.getRawButton(CAM_1) || attack3.getRawButton(4)){
     		//camera 1
     		//camera.setCamera(0);
+    		climber.set(0.8);
     	}else if(xbox.getRawButton(CAM_2)){
     		//camera 2
     		//camera.setCamera(1);
+    		climber.set(-0.8);
+    	}else
+    	{
+    		climber.set(0);
     	}
     	
     	//Shooter up and down
@@ -584,7 +642,7 @@ public class Robot extends IterativeRobot {
     	try{
     		double[] defaultValue = new double[0];
     		centerX = table.getNumberArray("centerX", defaultValue);
-    		if((centerX[0] + 5 > imageCenter) && (centerX[0] - 5 < imageCenter))
+    		if((centerX[0] + 3 > imageCenter) && (centerX[0] - 3 < imageCenter))
     		{
     			SmartDashboard.putString("Shot Ready", "true");
     		}
@@ -602,7 +660,7 @@ public class Robot extends IterativeRobot {
     			}else{
     				//Take shot
     			}
-    			Thread.sleep(50);
+    			Thread.sleep(700);
     		}
     		
     	}catch(ArrayIndexOutOfBoundsException ex){
