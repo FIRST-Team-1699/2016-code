@@ -691,6 +691,7 @@ public class Robot extends IterativeRobot {
     				if ((iterJ % 2) == 0) {rDrive.tankDrive(-1 * fastVal, slowVal);} // Turn right-back
     				if ((iterJ % 2) == 1) {rDrive.tankDrive(-1 * slowVal, fastVal);} // Turn left-forward
         		}
+        	Thread.sleep(450);
     		}
     
     	}
