@@ -30,7 +30,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.apache.commons.io.output.TeeOutputStream;
 
 public class Robot extends IterativeRobot {
-    // Autonomous Chooser decelerations    
+    
+	// Autonomous Chooser decelerations    
     final String rockWall = "rock wall";
     final String roughTerrain = "rough terrain";
     final String ramparts = "ramparts";
@@ -127,6 +128,7 @@ public class Robot extends IterativeRobot {
     
     // Line up shot method
     int iterJ;
+    int iterF;
     
     // Shoot method 
     int iterA;
@@ -152,7 +154,8 @@ public class Robot extends IterativeRobot {
     final int CAM_2 = 6;
     
     // Line up shot
-    final int LINE_UP = 2;    
+    final int LINE_UP = 2;
+    int slowLineUp;
     
    //Camera
     CameraServer server;
@@ -160,6 +163,7 @@ public class Robot extends IterativeRobot {
     //Vision
     NetworkTable table;
 	double[] centerX;
+	int gripTolerance;
     
     public void robotInit() { 
     	//Dashboard
@@ -176,13 +180,14 @@ public class Robot extends IterativeRobot {
     	gear1 = teleopIni.getValue("gear1");
         gear2 = teleopIni.getValue("gear2");
         gear3 = teleopIni.getValue("gear3");
-        autoSpeed = teleopIni.getValue("autoSpeed");
         pickupSpeed = teleopIni.getValue("pickupSpeed");
         shooterMotorSpeed1 = teleopIni.getValue("shooterMotorSpeed1");
         shooterMotorSpeed2 = teleopIni.getValue("shooterMotorSpeed2");
         shooterMotorSpeed3 = teleopIni.getValue("shooterMotorSpeed3");
         shooterMotorSpeed4 = teleopIni.getValue("shooterMotorSpeed4");
     	imageCenter = teleopIni.getValue("imageCenter");
+    	gripTolerance = (int) teleopIni.getValue("gripTolerance");
+    	slowLineUp = (int) teleopIni.getValue("slowLineUp");
     	
         
         // Adds options to the Autonomous chooser
@@ -251,6 +256,7 @@ public class Robot extends IterativeRobot {
         
         // Line up method
         iterJ = 0;
+        iterF = 0;
     }
     	
     
@@ -580,7 +586,7 @@ public class Robot extends IterativeRobot {
     		
     		double[] defaultValue = new double[0];
     		centerX = table.getNumberArray("centerX", defaultValue);
-    		if((centerX[0] + 5 > imageCenter) && (centerX[0] - 5 < imageCenter))
+    		if(((centerX[0] + gripTolerance) > imageCenter) && ((centerX[0] - gripTolerance) < imageCenter))
     		{
     			// done by updateDashboard?
     			//SmartDashboard.putString("Shot Ready", "true");
@@ -589,17 +595,68 @@ public class Robot extends IterativeRobot {
     			iterJ += 1;
     			//SmartDashboard.putString("Shot Ready", "false");
     			if(centerX[0] > imageCenter){
-    				//Turn left
-    				if ((iterJ % 2) == 0) {rDrive.tankDrive(0.3, -0.8);} // Turn left-back
-    				if ((iterJ % 2) == 1) {rDrive.tankDrive(0.8, -0.3);} // Turn left-forward
+    				// Turn left-forward
+    				if ((iterJ % 2) == 0)
+    				{
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.3, -0.8);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.2, -0.5);
+    						Thread.sleep(300);
+    					}
+    					
+    				}
+    				// Turn left-back
+    				if ((iterJ % 2) == 1) 
+    				{
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.8, -0.3);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.5, -0.2);
+    						Thread.sleep(300);
+    					}
     			}else if(centerX[0] < imageCenter){
-    				//Turn right
-    				if ((iterJ % 2) == 0) {rDrive.tankDrive(-0.8, 0.3);} // Turn right-back
-    				if ((iterJ % 2) == 1) {rDrive.tankDrive(-0.3, 0.8);} // Turn left-forward
+    				//Turn right-back
+    				if ((iterJ % 2) == 0) {
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.8, 0.3);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.5, 0.2);
+    						Thread.sleep(300);
+    					}
+    				}
+    				// Turn left-back
+    				if ((iterJ % 2) == 1) {
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.3, 0.8);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.2, 0.5);
+    						Thread.sleep(300);
+    					}rDrive.tankDrive(-0.3, 0.8);} // Turn left-forward
+    				}
     			}else{
     				//Take shot
     			}
-    			Thread.sleep(500);
     		}
     		
     	}catch(ArrayIndexOutOfBoundsException ex){
@@ -608,6 +665,37 @@ public class Robot extends IterativeRobot {
     		e.printStackTrace();
     	}
 	}
+    
+    // Experimental, new version of lineUp()
+    public void newLineUp()
+    {
+    	// This method relies on SmartDashboard values, so update them first
+    	this.updateDashboard();
+    	
+    	try{
+    		if (SmartDashboard.getString("Shot Ready").equals("false"))
+    		{
+    			// get GRIP values
+    			double[] defaultValue = new double[0];
+        		centerX = table.getNumberArray("centerX", defaultValue);
+        		
+        		iterF += 1;
+        		double fastVal = .30411 * Math.log(Math.abs(imageCenter - centerX[0])) + .1895;
+        		double slowVal = .2411 * Math.log(Math.abs(imageCenter - centerX[0])) + .080857;
+        		if(centerX[0] > imageCenter){
+    				//Turn left
+    				if ((iterJ % 2) == 0) {rDrive.tankDrive(slowVal, -1 * fastVal);} // Turn left-back
+    				if ((iterJ % 2) == 1) {rDrive.tankDrive(fastVal, -1 * slowVal);} // Turn left-forward
+    			}else if(centerX[0] < imageCenter){
+    				//Turn right
+    				if ((iterJ % 2) == 0) {rDrive.tankDrive(-1 * fastVal, slowVal);} // Turn right-back
+    				if ((iterJ % 2) == 1) {rDrive.tankDrive(-1 * slowVal, fastVal);} // Turn left-forward
+        		}
+    		}
+    
+    	}
+    	catch (Exception e) {e.printStackTrace();}
+    }
     
     
     // Shoots ball. Requires a setting.
@@ -727,12 +815,12 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Current Gear: ", cGear);
     	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
     	
-    	double[] defaultValue = new double[0];
-		centerX = table.getNumberArray("centerX", defaultValue);
+    	double[] gripVals = new double[0];
+		centerX = table.getNumberArray("centerX", gripVals);
 		SmartDashboard.putString("centerX", centerX.toString());
 		try
 		{
-			if((centerX[0] + 5 > imageCenter) && (centerX[0] - 5 < imageCenter)) 
+			if((centerX[0] + gripTolerance > imageCenter) && (centerX[0] - gripTolerance < imageCenter)) 
 				{SmartDashboard.putString("Shot Ready", "true");}
 			else {SmartDashboard.putString("Shot Ready", "false");}
 		}
