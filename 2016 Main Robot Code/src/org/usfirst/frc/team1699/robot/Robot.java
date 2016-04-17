@@ -2,9 +2,12 @@
  * FIRST Team 1699's 2016 Robot Code
  * 
  * @author thatging3rkid, FIRST Team 1699
- * @author squirlemaster42, FIRST Team 1699 * 
+ * @author squirlemaster42, FIRST Team 1699 
  * 
- * v0.1.1, published on 3/9/16, used at NE North Shore Event
+ * v0.1.3, published on 4/10/16, used at NE District Championship
+ * 
+ * Winner of the 2016 Innovation in Controls Award at the NE Hartford District Event
+ * 
  */
 package org.usfirst.frc.team1699.robot;
 
@@ -12,7 +15,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.commons.io.output.TeeOutputStream;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -25,21 +30,28 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.apache.commons.io.output.TeeOutputStream;
-
 public class Robot extends IterativeRobot {
-    // Autonomous Chooser strings
-	final String defaultAuto = "1699-autoDef";
-    final String auto1S = "1699-auto1";
-    final String auto2S = "1699-auto2";
-    final String auto3S = "1699-auto3";
-    final String auto4S = "1699-auto4";
-    final String auto5S = "1699-auto5";
-    final String auto6S = "1699-auto6";
-    final String auto7S = "1699-auto7";
-    final String auto8S = "1699-auto8";
-    String autoSelected;
-    SendableChooser chooser;
+    
+	// Autonomous Chooser decelerations    
+    final String rockWall = "rock wall";
+    final String roughTerrain = "rough terrain";
+    final String ramparts = "ramparts";
+    final String moat = "moat";
+    final String spyBox = "spy box";
+    String defenseSelected;
+    SendableChooser defenseChooser;
+    
+    final String turnLeft = "left";
+    final String turnRight = "right";
+    final String straight = "straight";
+    final String noTurn = "no move";
+    String autoTurnSelected;
+    SendableChooser autoTurnChooser;
+    
+    final String shootBall = "shot";
+    final String noShootBall = "no shot";
+    String shotSelected;
+    SendableChooser shotChooser;
     
     // Logging decelerations
     File logf;
@@ -76,9 +88,6 @@ public class Robot extends IterativeRobot {
     //VictorSP leftPickup;
     VictorSP rightPickup;
     
-    //Pickup
-    VictorSP climber;
-    
     // Initialize ini file
     iniReader teleopIni;
     
@@ -97,7 +106,7 @@ public class Robot extends IterativeRobot {
     // Current "gear" number (current options: 1-3) (initializes at 2)
     int cGear = 2; 
     
-    //ini retrieved
+    // ini retrieved
     double gear1;
     double gear2;
     double gear3;
@@ -112,14 +121,15 @@ public class Robot extends IterativeRobot {
     // Autonomous variables
     double iter;
     int autoCount1;
-    iniReader autoCommands;
-    @SuppressWarnings("rawtypes")
-	ArrayList commands;
-    @SuppressWarnings("rawtypes")
-	ArrayList cCommand;    
+    double speed = 0;
+    double i = 0;
+    boolean defenseDone;
+    boolean autoTurnDone;
+    int autoTurnIter;
     
     // Line up shot method
     int iterJ;
+    int iterF;
     
     // Shoot method 
     int iterA;
@@ -145,7 +155,8 @@ public class Robot extends IterativeRobot {
     final int CAM_2 = 6;
     
     // Line up shot
-    final int LINE_UP = 2;    
+    final int LINE_UP = 2;
+    int slowLineUp;
     
    //Camera
     CameraServer server;
@@ -153,53 +164,60 @@ public class Robot extends IterativeRobot {
     //Vision
     NetworkTable table;
 	double[] centerX;
-	double[] xCenter;
-	
-	//Auto
-	boolean autoOff = false;
+	int gripTolerance;
     
     public void robotInit() { 
+    	//Dashboard
+    	table = NetworkTable.getTable("GRIP/myContoursReport");
+    	this.updateDashboard();
+   
+    	
     	// Logging start
     	this.loggingInit();
     	
-    	//Vision
-    	table = NetworkTable.getTable("GRIP/myContoursReport");
-    	
-    	//Dashboard
-    	SmartDashboard.putString("Shot Ready", "false");
-    	double[] gripVals = new double[0];
-		xCenter = table.getNumberArray("centerX", gripVals);
-		SmartDashboard.putString("CenterX", xCenter.toString()); 	
     	
     	// iniReader
     	teleopIni = new iniReader("1699-config.ini");
     	gear1 = teleopIni.getValue("gear1");
         gear2 = teleopIni.getValue("gear2");
         gear3 = teleopIni.getValue("gear3");
-        autoSpeed = teleopIni.getValue("autoSpeed");
         pickupSpeed = teleopIni.getValue("pickupSpeed");
         shooterMotorSpeed1 = teleopIni.getValue("shooterMotorSpeed1");
         shooterMotorSpeed2 = teleopIni.getValue("shooterMotorSpeed2");
         shooterMotorSpeed3 = teleopIni.getValue("shooterMotorSpeed3");
         shooterMotorSpeed4 = teleopIni.getValue("shooterMotorSpeed4");
     	imageCenter = teleopIni.getValue("imageCenter");
+    	gripTolerance = (int) teleopIni.getValue("gripTolerance");
+    	slowLineUp = (int) teleopIni.getValue("slowLineUp");
+    	
         
-    	// Autonomous chooser
-        chooser = new SendableChooser();
-        chooser.addObject("Autonomous 1", auto1S);
-        chooser.addObject("Autonomous 2", auto2S);
-        chooser.addObject("Autonomous 3", auto3S);
-        chooser.addObject("Autonomous 4", auto4S);
-        chooser.addObject("Autonomous 5", auto5S);
-        chooser.addObject("Autonomous 6", auto6S);
-        chooser.addObject("Autonomous 7", auto7S);
-        chooser.addObject("Autonomous 8", auto8S);
-        SmartDashboard.putData("Auto Chooser", chooser);
+        // Adds options to the Autonomous chooser
+        defenseChooser = new SendableChooser();
+        defenseChooser.addObject("Rock Wall", rockWall);
+        defenseChooser.addObject("Rough Terrain", roughTerrain);
+        defenseChooser.addObject("Ramparts", ramparts);
+        defenseChooser.addObject("Moat", moat);
+        defenseChooser.addDefault("Spy Box", spyBox);
+        SmartDashboard.putData("Defense Chooser", defenseChooser);
+        
+        autoTurnChooser = new SendableChooser();
+        autoTurnChooser.addObject("Turn Left", turnLeft);
+        autoTurnChooser.addObject("Straight", straight);
+        autoTurnChooser.addObject("Turn Right", turnRight);
+        autoTurnChooser.addDefault("No Turn", noTurn);
+        SmartDashboard.putData("Auto Turn Chooser", autoTurnChooser);
+        
+        shotChooser = new SendableChooser();
+        shotChooser.addObject("Shoot Ball", shootBall);
+        shotChooser.addDefault("No Shot", noShootBall);
+        SmartDashboard.putData("Shot Chooser", shotChooser);
+        
         
         //Human Controls
         extreme3d = new Joystick(0);
         attack3 = new Joystick(1);
         xbox = new Joystick(2);
+        
         
         //Motor Control
         //Drive Motors
@@ -217,11 +235,9 @@ public class Robot extends IterativeRobot {
         //Ball pickup
         rightPickup = new VictorSP(6);
         
-        //Climber
-        climber = new VictorSP(8);
-        
         //Drive
         rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
+        
         
         // More Encoders
         frontLeftE = new Encoder(1, 2, true, Encoder.EncodingType.k4X);
@@ -229,9 +245,11 @@ public class Robot extends IterativeRobot {
         frontLeftE.setDistancePerPulse(12.0);
         frontRightE.setDistancePerPulse(12.0);
         
+        
         // Joystick booleans
         leftNotHeld = false;
         rightNotHeld = false;
+        
         
         //Camera
         server = CameraServer.getInstance();
@@ -239,233 +257,177 @@ public class Robot extends IterativeRobot {
         //the camera name (ex "cam0") can be found through the roborio web interface
         server.startAutomaticCapture("cam0");
         
+        
         // Line up method
         iterJ = 0;
+        iterF = 0;
     }
-    
-    // Starts logging, should be called first thing
-    // Apache Commons needs to be property linked on the local PC (use libs/libs.md for tutorial)
-    public void loggingInit()
-    {
-        // More initializers, please. 
-        runtime = Runtime.getRuntime();
-        @SuppressWarnings("unused") // Actually used tho
-		Process p;
-        boolean logfcont = true;
-        Integer logfcount = new Integer(0);
-        
-        // Looks for non-existent log file
-        while (logfcont)
-        {
-        	logf = new File("/home/lvuser/1699-logs/log-" + logfcount + ".log");
-        	if (logf.exists()) 
-        	{
-        		logfcont = true;
-        		logfcount += 1;
-        	}
-        	else {logfcont = false;}
-        }
-        
-        // Renames current log file to the last number in the list and creates new log file
-        try 
-        {
-        	p = runtime.exec("mv /home/lvuser/1699-logs/log-current.log /home/lvuser/1699-logs/log-" + logfcount.toString() + ".log");
-        	p = runtime.exec("touch /home/lvuser/1699-logs/log-current.log");
-        }
-        catch (Exception e) {e.printStackTrace();}
-        
-        // Prepares for new log
-        logf = new File("/home/lvuser/1699-logs/log-current.log");
-        try
-        {
-        	// Makes new output stream in log-current.log
-        	FileOutputStream fos = new FileOutputStream(logf);
-        	
-        	// Makes Dual-output, called Tee for some reason.
-        	TeeOutputStream tos = new TeeOutputStream(System.out, fos);
-        	
-        	// Makes a PrintStream out of the new, dual-output Tee 
-        	PrintStream ps = new PrintStream(tos);
-        	
-        	// Sets the above PrintStream to System.out
-        	System.setOut(ps);
-        	System.out.println("Success setting Tee Output Stream.");
-        } 
-        catch (FileNotFoundException e) {e.printStackTrace();}
-        catch (Exception e) {e.printStackTrace();}
-    }	
+    	
     
     // Tells us that the robot is disabled
     public void disabledInit()
     {
+    	// easy robot modes first, am I right?
     	System.out.println("|------------------------------------------------------|");
     	System.out.println("| Team 1699 Robot: awating drive mode                  |");
     	System.out.println("|------------------------------------------------------|");
     }    
     
-    public void disabledPeriodic(){
-    	//camera.run();
+    // Called periodically when disabled
+    public void disabledPeriodic()
+    {
+    	// Update Dashboad values
+    	this.updateDashboard();
     }
     
+    
     // Runs before autonomous
-    public void autonomousInit() {
-    	autoSelected = (String) chooser.getSelected();
-		System.out.println("Auto selected: " + autoSelected);
+    public void autonomousInit() 
+    {
+    	//autoSelected = (String) chooser.getSelected();
+		//System.out.println("Auto selected: " + autoSelected);
+		
 		iter = 0;
     	//autoCommands = new iniReader(autoSelected + ".ini");
     	//commands = autoCommands.getFile();
     	//autoCount1 = 0;
 		i = 0;
 		speed = 0;
+		
+		// Gets selected autonomous
+		defenseSelected = (String) defenseChooser.getSelected();
+		autoTurnSelected = (String) autoTurnChooser.getSelected();
+		shotSelected = (String) shotChooser.getSelected();
+		
+		// Prints out selected auto for debugging
+		System.out.println("Auto selected: " + defenseSelected + ", " + autoTurnSelected + ", " + shotSelected);
+		
+		defenseDone = false;
+		autoTurnDone = false;
+		autoTurnIter = 0;
     }
-
-    double speed = 0;
-    double i = 0;
+    
+    
     // Called periodically during autonomous
     public void autonomousPeriodic() 
     {
-    	//camera.run();
-    	
-    	System.out.println(autoSelected);
-    	
-    	if(!autoOff){
-    		if((speed < 0.85) && !(i >= 120)){
-				speed += .04;
-			}
-		
-			if(i < 110){
-				rDrive.arcadeDrive(speed, 0);
-			}
-		
-			if(i >= 120 && i <= 120){
-				if(speed > 0){
-					speed -= .02;
-				}
-				rDrive.arcadeDrive(speed, 0);
-			}
-			
-			
-//			if(SmartDashboard.getString("Shot Ready").equals("true")){
-//				shootBall(3);
-//			}else{
-//				lineUp();
-//			}
-			
-			
-		
-			System.out.println(speed);
-		
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) { 
-				e.printStackTrace();
-			}
-		
-			i++;
-    	}
-    	
-    	/*switch ((String) autoSelected)
+    	// Cases for each defense
+    	// Rock Wall case
+    	if ((defenseSelected.equals(rockWall)) && (!defenseDone))
     	{
-    	case "1699-auto1":
-    	{
-    		if(speed < 0.8){
-    			speed += .04;
-    		}
+    		if (speed < 0.9) {speed += .04;}
     		
-    		if(i < 82){
-    			rDrive.arcadeDrive(speed, 0);
-    		} else{
+    		if (i < 110) {rDrive.arcadeDrive(speed, 0);}
+    		else
+    		{
     			rDrive.arcadeDrive(0, 0);
+    			defenseDone = true;
+    			autoTurnIter = 0;
     		}
-    		
-    		try {
-    			Thread.sleep(1);
-    		} catch (InterruptedException e) { 
-    			e.printStackTrace();
-    		}
-    		
-    		i++;
     	}
-    	case "1699-auto2":
+    	// Rough Terrain case
+    	else if ((defenseSelected.equals(roughTerrain)) && (!defenseDone))
     	{
-    		if(speed < .8){
-    			speed += .04;
-    		}
+    		if (speed < .8) {speed += .05;}
     		
-    		if(i < 50){
-    			rDrive.arcadeDrive(speed, 0);
-    		}else if (i < 58){
-    			rDrive.tankDrive(.3, .8);
-    		}else if (i < 65){
-    			this.lineUp();
-    		}else if (i < 66){
-				this.shootBall(3);
-			}else {
+    		if (i < 95) {rDrive.arcadeDrive(speed, 0);}
+    		else
+    		{
     			rDrive.arcadeDrive(0, 0);
+    			defenseDone = true;
+    			autoTurnIter = 0;
     		}
-    		
-    		try {
-    			Thread.sleep(1);
-    		} catch (InterruptedException e) { 
-    			e.printStackTrace();
-    		}
-    		
-    		i++;
     	}
-    	case "1699-auto3":
+    	// Ramparts case
+    	else if ((defenseSelected.equals(ramparts)) && (!defenseDone))
     	{
-    		if(speed < 0.9){
-    			speed += .04;
-    		}
+    		if (speed < .95) {speed += .05;}
     		
-    		if(i < 40){
-    			rDrive.arcadeDrive(speed, 0);
-    		} else{
+    		if (i < 110) {rDrive.arcadeDrive(speed, 0);}
+    		else
+    		{
     			rDrive.arcadeDrive(0, 0);
+    			defenseDone = true;
+    			autoTurnIter = 0;
     		}
-    		
-    		try {
-    			Thread.sleep(1);
-    		} catch (InterruptedException e) { 
-    			e.printStackTrace();
-    		}
-    		
-    		if(i > 40 && i < 50){
-    			lineUp();
-    		}
-    		
-    		if(SmartDashboard.getString("Shot Ready").equals("true")){
-    			int j = 0;
-    			if(j < 20){
-    				leftShoot.set(1 * shooterMotorSpeed3);
-    				rightShoot.set(-1 * shooterMotorSpeed3);
-    				topShoot.set(-1 * shooterMotorSpeed3);
-    				bottomShoot.set(-1 * shooterMotorSpeed3);
-    			}else if(j < 30){
-    				rightPickup.set(1 * pickupSpeed);
-    			}else{
-    				leftShoot.set(0);
-    				rightShoot.set(0);
-    				topShoot.set(0);
-    				bottomShoot.set(0);
-    				rightPickup.set(0);
-    			}
-    			j++;
-    			
-    		}
-    		i++;
     	}
-    	case "1699-auto4":
+    	// Moat case
+    	else if ((defenseSelected.equals(moat)) && (!defenseDone))
     	{
-    		rDrive.arcadeDrive(1,0);
+    		if (speed < .75) {speed += .04;}
+    		
+    		if (i < 170) {rDrive.arcadeDrive(speed, 0);}
+    		else
+    		{
+    			rDrive.arcadeDrive(0, 0);
+    			defenseDone = true;
+    			autoTurnIter = 0;
+    		}
     	}
-    	default:{
+    	// Spy Box case
+    	else if ((defenseSelected.equals(spyBox)) && (!defenseDone))
+    	{
+    		speed = 0;
     		rDrive.arcadeDrive(0, 0);
+    		autoTurnIter = 0;
+    		defenseDone = true;
     	}
-    	}*/
+    	// Iterate the defense loop
+    	i++;
+    	
+    	
+    	// Cases for turning after crossing a defense
+    	// Turn left case
+    	if ((autoTurnSelected.equals(turnLeft)) && (defenseDone) && (!autoTurnDone))
+    	{
+    		if (autoTurnIter < 20) {rDrive.tankDrive(-.3, .6);}
+    		else {autoTurnDone = true;}
     	}
+    	// Go straight case
+    	else if ((autoTurnSelected.equals(straight)) && (defenseDone) && (!autoTurnDone))
+    	{
+    		if (autoTurnIter < 20) {rDrive.tankDrive(.6, .6);}
+    		else {autoTurnDone = true;}
+    	}
+    	// Turn right case
+    	else if ((autoTurnSelected.equals(turnRight)) && (defenseDone) && (!autoTurnDone))
+    	{
+    		if (autoTurnIter < 20) {rDrive.tankDrive(.6, -.3);}
+    		else {autoTurnDone = true;}
+    	}
+    	// Do nothing case
+    	else if ((autoTurnSelected.equals(noTurn)) && (defenseDone) && (!autoTurnDone))
+    	{
+    		if (autoTurnIter < 20) {rDrive.tankDrive(0, 0);}
+    		else {autoTurnDone = true;}
+    	}
+    	// Iterate the auto Turn counter
+    	autoTurnIter++;
+		
+		// Cases for shooting the ball
+    	// Shoot
+    	if ((shotSelected.equals(shootBall)) && (defenseDone) && (autoTurnDone))
+    	{
+    		if (SmartDashboard.getString("Shot Ready").equals("true"))
+    		{
+    			this.shootBall(3);
+    		}
+    		else 
+    		{
+    			this.lineUp();
+    		}
+    	}
+
+    	// sleep between loops
+		try {Thread.sleep(1);}
+		catch (InterruptedException e) {e.printStackTrace();}
+		
+		// Update Dashboad values
+		this.updateDashboard();
+    }
     
     
+    // Called periodically during Teleop
     public void teleopPeriodic() {
     	/*
     	 * Reference Driver Input sheet
@@ -473,6 +435,7 @@ public class Robot extends IterativeRobot {
     	 * Driver 1:
     	 * Joystick 1 (extreme3d):
     	 *   x-axis: drive right side
+    	 *   button 2: line up
     	 * Joystick 2 (attack3):
     	 *   x-axis: drive left side
     	 *   button 3: pickup
@@ -484,11 +447,6 @@ public class Robot extends IterativeRobot {
     	 *   button 5/6: camera switch
     	 * 
     	*/
-    	
-    	//Grip stuff
-    	double[] gripVals = new double[0];
-		xCenter = table.getNumberArray("centerX", gripVals);
-		SmartDashboard.putString("CenterX", xCenter.toString());
     	
     	// Gearing "application" logic
     	xSpeed2 = -1 * extreme3d.getRawAxis(1) * gearRatio;
@@ -557,14 +515,9 @@ public class Robot extends IterativeRobot {
     	if(xbox.getRawButton(CAM_1) || attack3.getRawButton(4)){
     		//camera 1
     		//camera.setCamera(0);
-    		climber.set(0.8);
     	}else if(xbox.getRawButton(CAM_2)){
     		//camera 2
     		//camera.setCamera(1);
-    		climber.set(-0.8);
-    	}else
-    	{
-    		climber.set(0);
     	}
     	
     	//Shooter up and down
@@ -626,41 +579,94 @@ public class Robot extends IterativeRobot {
     	else if (cGear == 3) {gearRatio = gear3;}
     	else {gearRatio = 0.0;}
     	
-    	// Prints Gearing data to Smart Dashboard
-    	SmartDashboard.putNumber("Current Gear: ", cGear);
-    	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
-    	
-    	// Update camera?
-    	//camera.run();
+    	// Update Dashboad values
+    	this.updateDashboard();
     }
     
-    // Team methods
-    //
     
-    // line up shooter, send value to Dashboard
+    // --------------- Team methods ---------------------
+    // Everything below here is not called automatically
+    
+    
+    // line up shooter
     public void lineUp(){
     	try{
+    		// Update Dashboad values
+    		this.updateDashboard();
+    		
     		double[] defaultValue = new double[0];
     		centerX = table.getNumberArray("centerX", defaultValue);
-    		if((centerX[0] + 3 > imageCenter) && (centerX[0] - 3 < imageCenter))
+    		if(((centerX[0] + gripTolerance) > imageCenter) && ((centerX[0] - gripTolerance) < imageCenter))
     		{
-    			SmartDashboard.putString("Shot Ready", "true");
+    			// done by updateDashboard?
+    			//SmartDashboard.putString("Shot Ready", "true");
     		}
     		else{
     			iterJ += 1;
-    			SmartDashboard.putString("Shot Ready", "false");
+    			//SmartDashboard.putString("Shot Ready", "false");
     			if(centerX[0] > imageCenter){
-    				//Turn left
-    				if ((iterJ % 2) == 0) {rDrive.tankDrive(0.3, -0.8);} // Turn left-back
-    				if ((iterJ % 2) == 1) {rDrive.tankDrive(0.8, -0.3);} // Turn left-forward
+    				// Turn left-forward
+    				if ((iterJ % 2) == 0)
+    				{
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.3, -0.8);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.2, -0.5);
+    						Thread.sleep(300);
+    					}
+    					
+    				}
+    				// Turn left-back
+    				if ((iterJ % 2) == 1) 
+    				{
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.8, -0.3);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(0.5, -0.2);
+    						Thread.sleep(300);
+    					}
     			}else if(centerX[0] < imageCenter){
-    				//Turn right
-    				if ((iterJ % 2) == 0) {rDrive.tankDrive(-0.8, 0.3);} // Turn right-back
-    				if ((iterJ % 2) == 1) {rDrive.tankDrive(-0.3, 0.8);} // Turn left-forward
+    				//Turn right-back
+    				if ((iterJ % 2) == 0) {
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.8, 0.3);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.5, 0.2);
+    						Thread.sleep(300);
+    					}
+    				}
+    				// Turn left-back
+    				if ((iterJ % 2) == 1) {
+    					double distance = Math.abs(centerX[0] - imageCenter);
+    					if (distance > slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.3, 0.8);
+    						Thread.sleep(500);
+    					}
+    					else if (distance <= slowLineUp) 
+    					{
+    						rDrive.tankDrive(-0.2, 0.5);
+    						Thread.sleep(300);
+    					}rDrive.tankDrive(-0.3, 0.8);} // Turn left-forward
+    				}
     			}else{
     				//Take shot
     			}
-    			Thread.sleep(700);
     		}
     		
     	}catch(ArrayIndexOutOfBoundsException ex){
@@ -670,11 +676,44 @@ public class Robot extends IterativeRobot {
     	}
 	}
     
+    // Experimental, new version of lineUp()
+    public void newLineUp()
+    {
+    	// This method relies on SmartDashboard values, so update them first
+    	this.updateDashboard();
+    	
+    	try{
+    		if (SmartDashboard.getString("Shot Ready").equals("false"))
+    		{
+    			// get GRIP values
+    			double[] defaultValue = new double[0];
+        		centerX = table.getNumberArray("centerX", defaultValue);
+        		
+        		iterF += 1;
+        		double fastVal = .30411 * Math.log(Math.abs(imageCenter - centerX[0])) + .1895;
+        		double slowVal = .2411 * Math.log(Math.abs(imageCenter - centerX[0])) + .080857;
+        		if(centerX[0] > imageCenter){
+    				//Turn left
+    				if ((iterJ % 2) == 0) {rDrive.tankDrive(slowVal, -1 * fastVal);} // Turn left-back
+    				if ((iterJ % 2) == 1) {rDrive.tankDrive(fastVal, -1 * slowVal);} // Turn left-forward
+    			}else if(centerX[0] < imageCenter){
+    				//Turn right
+    				if ((iterJ % 2) == 0) {rDrive.tankDrive(-1 * fastVal, slowVal);} // Turn right-back
+    				if ((iterJ % 2) == 1) {rDrive.tankDrive(-1 * slowVal, fastVal);} // Turn left-forward
+        		}
+        	Thread.sleep(450);
+    		}
+    
+    	}
+    	catch (Exception e) {e.printStackTrace();}
+    }
+    
+    
+    // Shoots ball. Requires a setting.
     public void shootBall(int setting)
     {
    		try {
    			// sleep check
-   		
    			Thread.sleep(1);
    		
    			// Set motor speed
@@ -708,13 +747,15 @@ public class Robot extends IterativeRobot {
    			}
 
    			// Let motors spin up
-   			Thread.sleep(1250);
+   			Thread.sleep(1750);
 
    			// Send ball towards its final destiny
    			rightPickup.set(1 * pickupSpeed);
 
-   			// Stop all motors
-   			Thread.sleep(500);
+   			// Ensure ball has cleared the pickup mechanism
+   			Thread.sleep(750);
+   			
+   			// Stop motors, prepare for next shot
    			leftShoot.set(0);
    			rightShoot.set(0);
    			topShoot.set(0);
@@ -724,6 +765,81 @@ public class Robot extends IterativeRobot {
    		catch (InterruptedException e) {e.printStackTrace();}
     }
     
+    
+    // Starts logging, should be called first thing
+    // Apache Commons needs to be property linked on the local PC (use libs/libs.md for tutorial)
+    public void loggingInit()
+    {
+        // More initializers, please. 
+        runtime = Runtime.getRuntime();
+        @SuppressWarnings("unused") // Actually used tho
+		Process p;
+        boolean logfcont = true;
+        Integer logfcount = new Integer(0);
+        
+        // Looks for non-existent log file
+        while (logfcont)
+        {
+        	logf = new File("/home/lvuser/1699-logs/log-" + logfcount + ".log");
+        	if (logf.exists()) 
+        	{
+        		logfcont = true;
+        		logfcount += 1;
+        	}
+        	else {logfcont = false;}
+        }
+        
+        // Renames current log file to the last number in the list and creates new log file
+        try 
+        {
+        	p = runtime.exec("mv /home/lvuser/1699-logs/log-current.log /home/lvuser/1699-logs/log-" + logfcount.toString() + ".log");
+        	p = runtime.exec("touch /home/lvuser/1699-logs/log-current.log");
+        }
+        catch (Exception e) {e.printStackTrace();}
+        
+        // Prepares for new log
+        logf = new File("/home/lvuser/1699-logs/log-current.log");
+        try
+        {
+        	// Makes new output stream in log-current.log
+        	FileOutputStream fos = new FileOutputStream(logf);
+        	
+        	// Makes Dual-output, called Tee for some reason.
+        	TeeOutputStream tos = new TeeOutputStream(System.out, fos);
+        	
+        	// Makes a PrintStream out of the new, dual-output Tee 
+        	PrintStream ps = new PrintStream(tos);
+        	
+        	// Sets the above PrintStream to System.out
+        	System.setOut(ps);
+        	System.out.println("Success setting Tee Output Stream.");
+        } 
+        catch (FileNotFoundException e) {e.printStackTrace();}
+        catch (Exception e) {e.printStackTrace();}
+    }
+    
+    
+    // Updates values on SmartDashboard. Should be called in ALL periodic methods.
+    public void updateDashboard()
+    {
+    	// Prints Gearing data to Smart Dashboard
+    	SmartDashboard.putNumber("Current Gear: ", cGear);
+    	SmartDashboard.putNumber("Current Gear Ratio: ", gearRatio);
+    	
+    	double[] gripVals = new double[0];
+		centerX = table.getNumberArray("centerX", gripVals);
+		SmartDashboard.putString("centerX", Arrays.toString(centerX));
+		try
+		{
+			if((centerX[0] + gripTolerance > imageCenter) && (centerX[0] - gripTolerance < imageCenter)) 
+				{SmartDashboard.putString("Shot Ready", "true");}
+			else {SmartDashboard.putString("Shot Ready", "false");}
+		}
+		catch (Exception e){SmartDashboard.putString("Shot Ready", "error: no goal");}
+    	
+    }
+    
+    
     // Rarely used by 1699
     public void testPeriodic() 
     {
@@ -732,4 +848,3 @@ public class Robot extends IterativeRobot {
         System.out.println("|------------------------------------------------------|");
     }    
 }
-
