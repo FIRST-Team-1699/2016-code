@@ -1,4 +1,4 @@
-# FIRST Team 1699's 2016 Code Repository
+# 2016-Code
 
 We are currently transitioning from LabView to Java. 
 
