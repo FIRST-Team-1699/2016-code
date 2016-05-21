@@ -47,3 +47,6 @@ Get retroflective tape for a proper pre-match GRIP test
 Ask Mr. D for compressed air cans
 
 See if logging actually works
+
+**What to do for Final Release:**
+Clean up code
