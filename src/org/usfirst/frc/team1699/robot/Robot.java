@@ -4,19 +4,13 @@
  * @author thatging3rkid, FIRST Team 1699
  * @author squirlemaster42, FIRST Team 1699 
  * 
- * v0.1.3, published on 4/10/16, used at NE District Championship
+ * v0.1.3-clean, published on 3/9/17
  * 
  * Winner of the 2016 Innovation in Controls Award at the NE Hartford District Event
- * 
  */
 package org.usfirst.frc.team1699.robot;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
-import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon; // Broken in WPILib 2017+
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -27,10 +21,32 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.apache.commons.io.output.TeeOutputStream;
-
 public class Robot extends IterativeRobot {
     
+	/*
+	 * A note about this code:
+	 * 
+	 * 		Welcome to the mess that is the 2016 code. I have no clue how we won Innovation in Controls, but this 
+	 * code did it. As to why this code was a mess, it's difficult to exactly pinpoint. First off, it was our
+	 * first season using Java. I knew Java well at the time, but not WPILib for Java. Also, we had a smaller team
+	 * than in the past, so the smaller-than-normal software team was asked to do other things. While in the past, we
+	 * would have declined, citing our big project that we wanted to get working for this season (usually autonomous 
+	 * improvements), but we accepted this work. We prototyped the shooter, then gave it to someone else, telling
+	 * them a 30 second summary of what we learned and told them to build it in metal. Safe to say, that did not go well.
+	 * And then, we had a weekend where we were snowed out. We didn't start learning WPILib until week 3 or 4. We rushed
+	 * learning it, then wrote up basic code, fixed it, then wired the robot. At our first event, we had basic robot code
+	 * (driving, shooting) working and a crosshair on our camera feed. After that event, we switched to the Axis camera
+	 * and made GRIP work, rewrote autonomous again. But, in Hartford, all our hard work was rewarded, with the Innovation
+	 * in Controls award. Not only did we win the award, but we had enough points to go onto District Championship, 
+	 * which was a first for the team. 
+	 * 
+	 * tl;dr started coding late, coding was slow, GRIP was difficult, but somehow, we won Innovation in Controls.
+	 * This code is a mess, good luck reading it. I have go and commented it, but this is spaghetti code. 
+	 * 
+	 * Thanks for reading, and good luck
+	 * 		--Connor Henley, aka @thatging3rkid, Controls Lead in 2016
+	 */	
+	
 	// Autonomous Chooser decelerations    
     final String rockWall = "rock wall";
     final String roughTerrain = "rough terrain";
@@ -52,10 +68,6 @@ public class Robot extends IterativeRobot {
     String shotSelected;
     SendableChooser shotChooser;
     
-    // Logging decelerations
-    File logf;
-    Runtime runtime;
-    
     //Camera Server
     CameraServer cam;
     
@@ -66,10 +78,10 @@ public class Robot extends IterativeRobot {
     
     //Motor Control
     //Drive Motors
-    CANTalon rightDrive1;
-    CANTalon rightDrive2;
-    CANTalon leftDrive1;
-    CANTalon leftDrive2;
+    CANTalon rightDrive1; // Broken in WPILib 2017+
+    CANTalon rightDrive2; // Broken in WPILib 2017+
+    CANTalon leftDrive1;  // Broken in WPILib 2017+
+    CANTalon leftDrive2;  // Broken in WPILib 2017+
     
     // Robot Drive for easier motor control
     RobotDrive rDrive;
@@ -169,12 +181,7 @@ public class Robot extends IterativeRobot {
     	//Dashboard
     	table = NetworkTable.getTable("GRIP/myContoursReport");
     	this.updateDashboard();
-   
-    	
-    	// Logging start
-    	this.loggingInit();
-    	
-    	
+      	
     	// iniReader
     	teleopIni = new iniReader("1699-config.ini");
     	gear1 = teleopIni.getValue("gear1");
@@ -189,7 +196,6 @@ public class Robot extends IterativeRobot {
     	gripTolerance = (int) teleopIni.getValue("gripTolerance");
     	slowLineUp = (int) teleopIni.getValue("slowLineUp");
     	
-        
         // Adds options to the Autonomous chooser
         defenseChooser = new SendableChooser();
         defenseChooser.addObject("Rock Wall", rockWall);
@@ -208,19 +214,17 @@ public class Robot extends IterativeRobot {
         shotChooser.addObject("Shoot Ball", shootBall);
         shotChooser.addDefault("No Shot", noShootBall);
         
-        
         //Human Controls
         extreme3d = new Joystick(0);
         attack3 = new Joystick(1);
         xbox = new Joystick(2);
         
-        
         //Motor Control
         //Drive Motors
-        rightDrive1 = new CANTalon(10);
-        rightDrive2 = new CANTalon(11);
-        leftDrive1 = new CANTalon(12);
-        leftDrive2 = new CANTalon(13);
+        rightDrive1 = new CANTalon(10); // Broken in WPILib 2017+
+        rightDrive2 = new CANTalon(11); // Broken in WPILib 2017+
+        leftDrive1 = new CANTalon(12);  // Broken in WPILib 2017+
+        leftDrive2 = new CANTalon(13);  // Broken in WPILib 2017+
         
         //Shooter Motors
         leftShoot = new VictorSP(1);
@@ -232,27 +236,23 @@ public class Robot extends IterativeRobot {
         rightPickup = new VictorSP(6);
         
         //Drive
-        rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2);        
-        
+        rDrive = new RobotDrive(leftDrive1, leftDrive2, rightDrive1, rightDrive2); // Broken in WPILib 2017+
         
         // More Encoders
         frontLeftE = new Encoder(1, 2, true, Encoder.EncodingType.k4X);
         frontRightE = new Encoder(3, 4, true, Encoder.EncodingType.k4X);
         frontLeftE.setDistancePerPulse(12.0);
-        frontRightE.setDistancePerPulse(12.0);
-        
+        frontRightE.setDistancePerPulse(12.0);      
         
         // Joystick booleans
         leftNotHeld = false;
         rightNotHeld = false;
-        
         
         //Camera
         server = CameraServer.getInstance();
         server.setQuality(50);
         //the camera name (ex "cam0") can be found through the roborio web interface
         server.startAutomaticCapture("cam0");
-        
         
         // Line up method
         iterJ = 0;
@@ -304,7 +304,11 @@ public class Robot extends IterativeRobot {
     }
     
     
-    // Called periodically during autonomous
+    /**
+     * Called periodically (every 20ms) during autnomous, when enabled
+     * 
+     * @inheritDoc
+     */
     public void autonomousPeriodic() 
     {
     	// Cases for each defense
@@ -417,7 +421,11 @@ public class Robot extends IterativeRobot {
     }
     
     
-    // Called periodically during Teleop
+    /**
+     * Called periodically (every 20ms) during teleop, when enabled
+     * 
+     * @inheritDoc
+     */
     public void teleopPeriodic() {
     	/*
     	 * Reference Driver Input sheet
@@ -510,6 +518,7 @@ public class Robot extends IterativeRobot {
     		//camera.setCamera(1);
     	}
     	
+    	/*
     	//Shooter up and down
     	if(xbox.getRawAxis(TRIGGER_AXIS_1) == 1){
     		//shooter up
@@ -524,9 +533,11 @@ public class Robot extends IterativeRobot {
     		//shootAdjust.set(0);
     		//rightPickup.set(0);
     	}
+    	*/
     	
-    	// Gearing "back-end" from here on
-    	//Gearing control
+    	// Gearing "back-end"
+    	// So after deciding to use the big wheels, we figured out that the robot would go very, very fast.
+    	// So, the robot has "gears": 1st, 2nd, and 3rd, that limits the speed of the robot
     	if(extreme3d.getTrigger() && !rightNotHeld)
     	{
     		//gear up
@@ -556,7 +567,7 @@ public class Robot extends IterativeRobot {
     		}
     	}
     	
-    	// Logic below checks for a user holding the button
+    	// Checks for a user holding the button
     	if(!attack3.getTrigger() && leftNotHeld){
     		leftNotHeld = false;
     	}else if(!extreme3d.getTrigger() && rightNotHeld){
@@ -578,23 +589,37 @@ public class Robot extends IterativeRobot {
     // Everything below here is not called automatically
     
     
-    // line up shooter
+    /**
+     * Line up the robot to shoot a ball
+     * 
+     * It works by using a super watered down PID loop. It first calculates if the robot needs to turn left or right, 
+     * then by how much. If it needs to turn by a lot, then it sets a higher speed than if it only needs to turn a little.
+     * This is what causes the robot to "hump the ground" as Mr. Graham says, as it would jump around, trying to center.
+     */
     public void lineUp(){
     	try{
     		// Update Dashboad values
     		this.updateDashboard();
     		
+    		// Get values from GRIP over NetworkTables
     		double[] defaultValue = new double[0];
     		centerX = table.getNumberArray("centerX", defaultValue);
+    		
+    		// The goal has been met, do nothing
     		if(((centerX[0] + gripTolerance) > imageCenter) && ((centerX[0] - gripTolerance) < imageCenter))
     		{
     			// done by updateDashboard?
-    			//SmartDashboard.putString("Shot Ready", "true");
+    			//SmartDashboard.putString("Shot Ready", "true"); // unknown why this was removed
     		}
     		else{
+    			// Need to move the robot
     			iterJ += 1;
+    			
     			//SmartDashboard.putString("Shot Ready", "false");
-    			if(centerX[0] > imageCenter){
+    			if (centerX[0] > imageCenter) { // See if the robot needs to turn left
+    				// Using the number of iterations, alternate between turning left by powering the left side forward
+    				// and by powering the right side backwards, while powering the opposite side a little.
+    				//
     				// Turn left-forward
     				if ((iterJ % 2) == 0)
     				{
@@ -625,7 +650,9 @@ public class Robot extends IterativeRobot {
     						rDrive.tankDrive(0.5, -0.2);
     						Thread.sleep(300);
     					}
-    			}else if(centerX[0] < imageCenter){
+    			} else if (centerX[0] < imageCenter) { // See if the robot needs to turn right
+    				// See the comment above for how it works
+    				
     				//Turn right-back
     				if ((iterJ % 2) == 0) {
     					double distance = Math.abs(centerX[0] - imageCenter);
@@ -654,52 +681,76 @@ public class Robot extends IterativeRobot {
     						Thread.sleep(300);
     					}rDrive.tankDrive(-0.3, 0.8);} // Turn left-forward
     				}
-    			}else{
+    			} else {
     				//Take shot
     			}
     		}
     		
-    	}catch(ArrayIndexOutOfBoundsException ex){
+    	} catch (ArrayIndexOutOfBoundsException ex){
     		System.out.println("Goal not found.");
-    	}catch(Exception e){
+    	} catch (Exception e){
     		e.printStackTrace();
     	}
 	}
     
-    // Experimental, new version of lineUp()
+    /**
+     * Experimental version of the lineUp() method, never tested
+     */
     public void newLineUp()
     {
     	// This method relies on SmartDashboard values, so update them first
     	this.updateDashboard();
     	
-    	try{
-    		if (SmartDashboard.getString("Shot Ready").equals("false"))
-    		{
-    			// get GRIP values
+    	try {
+    		if (SmartDashboard.getString("Shot Ready").equals("false")) {
+    			// get GRIP values from NetworkTables
     			double[] defaultValue = new double[0];
         		centerX = table.getNumberArray("centerX", defaultValue);
         		
+        		// Calculate the distance between the center (goal) and the current position
         		iterF += 1;
         		double fastVal = .30411 * Math.log(Math.abs(imageCenter - centerX[0])) + .1895;
         		double slowVal = .2411 * Math.log(Math.abs(imageCenter - centerX[0])) + .080857;
-        		if(centerX[0] > imageCenter){
+        		
+        		// Turn the robot at the calculated speed (alternating going forwards and backwards)
+        		// Alternating was required due to the large wheels on the drivetrain
+        		if (centerX[0] > imageCenter){
     				//Turn left
-    				if ((iterJ % 2) == 0) {rDrive.tankDrive(slowVal, -1 * fastVal);} // Turn left-back
-    				if ((iterJ % 2) == 1) {rDrive.tankDrive(fastVal, -1 * slowVal);} // Turn left-forward
-    			}else if(centerX[0] < imageCenter){
+    				if ((iterJ % 2) == 0) {
+    					// Turn left-back
+    					rDrive.tankDrive(slowVal, -1 * fastVal);
+    				} 
+    				if ((iterJ % 2) == 1) {
+    					// Turn left-forward
+    					rDrive.tankDrive(fastVal, -1 * slowVal);
+    				} 
+    			} else if (centerX[0] < imageCenter){
     				//Turn right
-    				if ((iterJ % 2) == 0) {rDrive.tankDrive(-1 * fastVal, slowVal);} // Turn right-back
-    				if ((iterJ % 2) == 1) {rDrive.tankDrive(-1 * slowVal, fastVal);} // Turn left-forward
+    				if ((iterJ % 2) == 0) {
+    					// Turn right-back
+    					rDrive.tankDrive(-1 * fastVal, slowVal);
+    				} 
+    				if ((iterJ % 2) == 1) {
+    					// Turn left-forward
+    					rDrive.tankDrive(-1 * slowVal, fastVal);
+    				} 
         		}
         	Thread.sleep(450);
     		}
     
     	}
-    	catch (Exception e) {e.printStackTrace();}
+    	catch (Exception e) {
+    		// Prevent the code from crashing
+    		e.printStackTrace();
+    	}
     }
     
     
-    // Shoots ball. Requires a setting.
+    /**
+     * Shoots a ball
+     * 
+     * @param setting the speed at which the ball is shot at (1, 2, 3, 4)
+     */
     public void shootBall(int setting)
     {
    		try {
@@ -755,61 +806,9 @@ public class Robot extends IterativeRobot {
    		catch (InterruptedException e) {e.printStackTrace();}
     }
     
-    
-    // Starts logging, should be called first thing
-    // Apache Commons needs to be property linked on the local PC (use libs/libs.md for tutorial)
-    public void loggingInit()
-    {
-        // More initializers, please. 
-        runtime = Runtime.getRuntime();
-        @SuppressWarnings("unused") // Actually used tho
-		Process p;
-        boolean logfcont = true;
-        Integer logfcount = new Integer(0);
-        
-        // Looks for non-existent log file
-        while (logfcont)
-        {
-        	logf = new File("/home/lvuser/1699-logs/log-" + logfcount + ".log");
-        	if (logf.exists()) 
-        	{
-        		logfcont = true;
-        		logfcount += 1;
-        	}
-        	else {logfcont = false;}
-        }
-        
-        // Renames current log file to the last number in the list and creates new log file
-        try 
-        {
-        	p = runtime.exec("mv /home/lvuser/1699-logs/log-current.log /home/lvuser/1699-logs/log-" + logfcount.toString() + ".log");
-        	p = runtime.exec("touch /home/lvuser/1699-logs/log-current.log");
-        }
-        catch (Exception e) {e.printStackTrace();}
-        
-        // Prepares for new log
-        logf = new File("/home/lvuser/1699-logs/log-current.log");
-        try
-        {
-        	// Makes new output stream in log-current.log
-        	FileOutputStream fos = new FileOutputStream(logf);
-        	
-        	// Makes Dual-output, called Tee for some reason.
-        	TeeOutputStream tos = new TeeOutputStream(System.out, fos);
-        	
-        	// Makes a PrintStream out of the new, dual-output Tee 
-        	PrintStream ps = new PrintStream(tos);
-        	
-        	// Sets the above PrintStream to System.out
-        	System.setOut(ps);
-        	System.out.println("Success setting Tee Output Stream.");
-        } 
-        catch (FileNotFoundException e) {e.printStackTrace();}
-        catch (Exception e) {e.printStackTrace();}
-    }
-    
-    
-    // Updates values on SmartDashboard. Should be called in ALL periodic methods.
+    /**
+     *  Updates values on SmartDashboard. Should be called in ALL periodic methods.
+     */
     public void updateDashboard()
     {
     	// Prints Gearing data to Smart Dashboard
@@ -828,7 +827,6 @@ public class Robot extends IterativeRobot {
 		catch (Exception e){SmartDashboard.putString("Shot Ready", "error: no goal");}
     	
     }
-    
     
     // Rarely used by 1699
     public void testPeriodic() 
