@@ -32,21 +32,22 @@ Go to district championship ✔
 
 **What to do for DC:**
 
-Continute work on lineUp algorithm
+~~Continute work on lineUp algorithm~~
 
-Make a selectable auto (select defense, select turn, select line up and shoot)
+~~Make a selectable auto (select defense, select turn, select line up and shoot)~~
 
 Clean up code a little?
 
 Fix dashboard
 
-Remeber to tell the judges that we have a GitHub page with all our code (and some resources)
+~~Remeber to tell the judges that we have a GitHub page with all our code (and some resources)~~
 
-Get retroflective tape for a proper pre-match GRIP test 
+~~Get retroflective tape for a proper pre-match GRIP test~~
 
 Ask Mr. D for compressed air cans
 
 See if logging actually works
 
 **What to do for Final Release:**
+
 Clean up code
